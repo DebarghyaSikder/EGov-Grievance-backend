@@ -21,8 +21,11 @@
     
     <!-- ==================== CHILD MODULES ==================== -->
     <!-- 
-        Order matters: infrastructure services first, then business services.
-        Start-up order: service-registry -> config-server -> api-gateway -> other services
+        Start-up Order: 
+        1. service-registry (Eureka Server)
+        2. config-server (Configuration Server)
+        3. api-gateway (API Gateway)
+        4. Other business services (can start in any order)
     -->
     <modules>
         <!-- Infrastructure Services -->
@@ -40,15 +43,6 @@
     </modules>
     
     <!-- ==================== VERSION PROPERTIES ==================== -->
-    <!-- 
-        IMPORTANT: Update spring-boot.version to match what you see in Spring Initializr
-        Also update spring-cloud.version accordingly (see compatibility table below)
-        
-        Spring Boot <-> Spring Cloud Compatibility:
-        - Spring Boot 3.4.x -> Spring Cloud 2024.0.0
-        - Spring Boot 3.3.x -> Spring Cloud 2023.0.x
-        - Spring Boot 3.2.x -> Spring Cloud 2023.0.x
-    -->
     <properties>
         <!-- Java Version -->
         <java.version>17</java.version>
@@ -56,18 +50,19 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         
-        <spring-boot.version>3.4.1</spring-boot.version>
+        <!-- Spring Versions (Confirmed from Spring Initializr) -->
+        <spring-boot.version>3.5.9</spring-boot.version>
         <spring-cloud.version>2024.0.0</spring-cloud.version>
         
         <!-- Security - JWT -->
         <jjwt.version>0.12.3</jjwt.version>
         
         <!-- Code Generation -->
-        <lombok.version>1.18.30</lombok.version>
+        <lombok.version>1.18.36</lombok.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         
         <!-- Documentation -->
-        <springdoc.version>2.3.0</springdoc.version>
+        <springdoc.version>2.8.0</springdoc.version>
     </properties>
     
     <!-- ==================== DEPENDENCY MANAGEMENT ==================== -->
