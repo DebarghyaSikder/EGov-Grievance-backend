@@ -6,70 +6,111 @@
     
     <modelVersion>4.0.0</modelVersion>
     
-    <!-- ==================== PROJECT COORDINATES ==================== -->
+    <!-- ╔═══════════════════════════════════════════════════════════════════════╗ -->
+    <!-- ║                         PROJECT COORDINATES                            ║ -->
+    <!-- ╚═══════════════════════════════════════════════════════════════════════╝ -->
     <groupId>com.grievance</groupId>
     <artifactId>grievance-redressal-system-backend</artifactId>
     <version>1.0.0</version>
     <packaging>pom</packaging>
     
-    <!-- ==================== PROJECT INFORMATION ==================== -->
+    <!-- ╔═══════════════════════════════════════════════════════════════════════╗ -->
+    <!-- ║                         PROJECT INFORMATION                            ║ -->
+    <!-- ╚═══════════════════════════════════════════════════════════════════════╝ -->
     <name>Grievance Redressal System - Backend</name>
     <description>
-        Microservices-based E-Governance Grievance Redressal System.
-        Capstone Project using Spring Boot, Spring Cloud, and Angular.
+        E-Governance Grievance Redressal System - A microservices-based platform 
+        for citizens to submit, track, and resolve grievances with government departments.
+        Built with Spring Boot 3.5.9, Spring Cloud 2024.0.0, MySQL, MongoDB, and Angular.
     </description>
     
-    <!-- ==================== CHILD MODULES ==================== -->
-    <!-- 
-        Start-up Order: 
-        1. service-registry (Eureka Server)
-        2. config-server (Configuration Server)
-        3. api-gateway (API Gateway)
-        4. Other business services (can start in any order)
-    -->
+    <!-- ╔═══════════════════════════════════════════════════════════════════════╗ -->
+    <!-- ║                         CHILD MODULES (12)                             ║ -->
+    <!-- ╠═══════════════════════════════════════════════════════════════════════╣ -->
+    <!-- ║  STARTUP ORDER:                                                        ║ -->
+    <!-- ║  1. service-registry  (Must start FIRST - Eureka Server)              ║ -->
+    <!-- ║  2. config-server     (Must start SECOND - Config Server)             ║ -->
+    <!-- ║  3. api-gateway       (Must start THIRD - Entry Point)                ║ -->
+    <!-- ║  4. Other services    (Can start in any order after above 3)          ║ -->
+    <!-- ╚═══════════════════════════════════════════════════════════════════════╝ -->
     <modules>
-        <!-- Infrastructure Services -->
-        <module>service-registry</module>
-        <module>config-server</module>
-        <module>api-gateway</module>
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <!--                    INFRASTRUCTURE SERVICES                          -->
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <module>service-registry</module>      <!-- Port: 8761 | Eureka Server -->
+        <module>config-server</module>         <!-- Port: 8888 | Configuration -->
+        <module>api-gateway</module>           <!-- Port: 8080 | Gateway -->
         
-        <!-- Business Services -->
-        <module>auth-service</module>
-        <module>user-service</module>
-        <module>department-service</module>
-        <module>grievance-service</module>
-        <module>notification-service</module>
-        <module>report-service</module>
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <!--                    CORE BUSINESS SERVICES                           -->
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <module>auth-service</module>          <!-- Port: 8081 | Authentication -->
+        <module>user-service</module>          <!-- Port: 8082 | User Management -->
+        <module>department-service</module>    <!-- Port: 8083 | Departments -->
+        <module>grievance-service</module>     <!-- Port: 8084 | Grievances -->
+        <module>history-service</module>       <!-- Port: 8085 | Audit Trail -->
+        <module>feedback-service</module>      <!-- Port: 8086 | Feedback -->
+        
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <!--                    SUPPORT SERVICES                                 -->
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <module>notification-service</module>  <!-- Port: 8087 | Notifications -->
+        <module>storage-service</module>       <!-- Port: 8088 | File Storage -->
+        <module>reporting-service</module>     <!-- Port: 8089 | Reports -->
     </modules>
     
-    <!-- ==================== VERSION PROPERTIES ==================== -->
+    <!-- ╔═══════════════════════════════════════════════════════════════════════╗ -->
+    <!-- ║                         VERSION PROPERTIES                             ║ -->
+    <!-- ╠═══════════════════════════════════════════════════════════════════════╣ -->
+    <!-- ║  All version numbers are centralized here for easy management.         ║ -->
+    <!-- ║  Child modules inherit these versions automatically.                   ║ -->
+    <!-- ╚═══════════════════════════════════════════════════════════════════════╝ -->
     <properties>
-        <!-- Java Version -->
-        <java.version>17</java.version>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <!-- ─────────────────────────────────────────────────────────────────── -->
+        <!--                         JAVA VERSION                                -->
+        <!-- ─────────────────────────────────────────────────────────────────── -->
+        <java.version>21</java.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         
-        <!-- Spring Versions (Confirmed from Spring Initializr) -->
+        <!-- ─────────────────────────────────────────────────────────────────── -->
+        <!--                    SPRING FRAMEWORK VERSIONS                        -->
+        <!-- ─────────────────────────────────────────────────────────────────── -->
         <spring-boot.version>3.5.9</spring-boot.version>
         <spring-cloud.version>2024.0.0</spring-cloud.version>
         
-        <!-- Security - JWT -->
-        <jjwt.version>0.12.3</jjwt.version>
+        <!-- ─────────────────────────────────────────────────────────────────── -->
+        <!--                    SECURITY - JWT LIBRARY                           -->
+        <!-- ─────────────────────────────────────────────────────────────────── -->
+        <jjwt.version>0.12.6</jjwt.version>
         
-        <!-- Code Generation -->
+        <!-- ─────────────────────────────────────────────────────────────────── -->
+        <!--                    CODE GENERATION TOOLS                            -->
+        <!-- ─────────────────────────────────────────────────────────────────── -->
         <lombok.version>1.18.36</lombok.version>
-        <mapstruct.version>1.5.5.Final</mapstruct.version>
+        <mapstruct.version>1.6.3</mapstruct.version>
+        <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
         
-        <!-- Documentation -->
+        <!-- ─────────────────────────────────────────────────────────────────── -->
+        <!--                    API DOCUMENTATION                                -->
+        <!-- ─────────────────────────────────────────────────────────────────── -->
         <springdoc.version>2.8.0</springdoc.version>
     </properties>
     
-    <!-- ==================== DEPENDENCY MANAGEMENT ==================== -->
+    <!-- ╔═══════════════════════════════════════════════════════════════════════╗ -->
+    <!-- ║                       DEPENDENCY MANAGEMENT                            ║ -->
+    <!-- ╠═══════════════════════════════════════════════════════════════════════╣ -->
+    <!-- ║  Defines which versions to use when child modules declare deps.        ║ -->
+    <!-- ║  Child modules don't need to specify versions - inherited from here.   ║ -->
+    <!-- ╚═══════════════════════════════════════════════════════════════════════╝ -->
     <dependencyManagement>
         <dependencies>
             
-            <!-- Spring Boot BOM (Bill of Materials) -->
+            <!-- ─────────────────────────────────────────────────────────────── -->
+            <!--              SPRING BOOT BOM (Bill of Materials)                -->
+            <!-- ─────────────────────────────────────────────────────────────── -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
@@ -78,7 +119,9 @@
                 <scope>import</scope>
             </dependency>
             
-            <!-- Spring Cloud BOM -->
+            <!-- ─────────────────────────────────────────────────────────────── -->
+            <!--              SPRING CLOUD BOM (Bill of Materials)               -->
+            <!-- ─────────────────────────────────────────────────────────────── -->
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
@@ -87,7 +130,9 @@
                 <scope>import</scope>
             </dependency>
             
-            <!-- JWT Libraries -->
+            <!-- ─────────────────────────────────────────────────────────────── -->
+            <!--                         JWT LIBRARIES                           -->
+            <!-- ─────────────────────────────────────────────────────────────── -->
             <dependency>
                 <groupId>io.jsonwebtoken</groupId>
                 <artifactId>jjwt-api</artifactId>
@@ -104,7 +149,9 @@
                 <version>${jjwt.version}</version>
             </dependency>
             
-            <!-- API Documentation - Swagger/OpenAPI -->
+            <!-- ─────────────────────────────────────────────────────────────── -->
+            <!--              API DOCUMENTATION - SWAGGER/OPENAPI                -->
+            <!-- ─────────────────────────────────────────────────────────────── -->
             <dependency>
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
@@ -116,7 +163,9 @@
                 <version>${springdoc.version}</version>
             </dependency>
             
-            <!-- MapStruct - DTO Mapping -->
+            <!-- ─────────────────────────────────────────────────────────────── -->
+            <!--              MAPSTRUCT - DTO/ENTITY MAPPING                     -->
+            <!-- ─────────────────────────────────────────────────────────────── -->
             <dependency>
                 <groupId>org.mapstruct</groupId>
                 <artifactId>mapstruct</artifactId>
@@ -131,10 +180,16 @@
         </dependencies>
     </dependencyManagement>
     
-    <!-- ==================== COMMON DEPENDENCIES ==================== -->
+    <!-- ╔═══════════════════════════════════════════════════════════════════════╗ -->
+    <!-- ║                       COMMON DEPENDENCIES                              ║ -->
+    <!-- ╠═══════════════════════════════════════════════════════════════════════╣ -->
+    <!-- ║  These dependencies are automatically included in ALL child modules.   ║ -->
+    <!-- ╚═══════════════════════════════════════════════════════════════════════╝ -->
     <dependencies>
         
-        <!-- Lombok - Reduces boilerplate code -->
+        <!-- ─────────────────────────────────────────────────────────────────── -->
+        <!--              LOMBOK - REDUCES BOILERPLATE CODE                      -->
+        <!-- ─────────────────────────────────────────────────────────────────── -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -142,7 +197,9 @@
             <optional>true</optional>
         </dependency>
         
-        <!-- Testing Framework -->
+        <!-- ─────────────────────────────────────────────────────────────────── -->
+        <!--              SPRING BOOT STARTER TEST                               -->
+        <!-- ─────────────────────────────────────────────────────────────────── -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -151,12 +208,16 @@
         
     </dependencies>
     
-    <!-- ==================== BUILD CONFIGURATION ==================== -->
+    <!-- ╔═══════════════════════════════════════════════════════════════════════╗ -->
+    <!-- ║                       BUILD CONFIGURATION                              ║ -->
+    <!-- ╚═══════════════════════════════════════════════════════════════════════╝ -->
     <build>
         <pluginManagement>
             <plugins>
                 
-                <!-- Spring Boot Maven Plugin -->
+                <!-- ─────────────────────────────────────────────────────────── -->
+                <!--              SPRING BOOT MAVEN PLUGIN                       -->
+                <!-- ─────────────────────────────────────────────────────────── -->
                 <plugin>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
@@ -169,16 +230,28 @@
                             </exclude>
                         </excludes>
                     </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>repackage</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
                 
-                <!-- Maven Compiler Plugin -->
+                <!-- ─────────────────────────────────────────────────────────── -->
+                <!--              MAVEN COMPILER PLUGIN                          -->
+                <!-- ─────────────────────────────────────────────────────────── -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.11.0</version>
+                    <version>3.13.0</version>
                     <configuration>
                         <source>${java.version}</source>
                         <target>${java.version}</target>
+                        <compilerArgs>
+                            <arg>-parameters</arg>
+                        </compilerArgs>
                         <annotationProcessorPaths>
                             <path>
                                 <groupId>org.projectlombok</groupId>
@@ -193,10 +266,19 @@
                             <path>
                                 <groupId>org.projectlombok</groupId>
                                 <artifactId>lombok-mapstruct-binding</artifactId>
-                                <version>0.2.0</version>
+                                <version>${lombok-mapstruct-binding.version}</version>
                             </path>
                         </annotationProcessorPaths>
                     </configuration>
+                </plugin>
+                
+                <!-- ─────────────────────────────────────────────────────────── -->
+                <!--              MAVEN SUREFIRE PLUGIN (Unit Tests)             -->
+                <!-- ─────────────────────────────────────────────────────────── -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.2.5</version>
                 </plugin>
                 
             </plugins>
