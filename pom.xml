@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+         https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    
+    <modelVersion>4.0.0</modelVersion>
+    
+    <!-- ==================== PROJECT COORDINATES ==================== -->
+    <groupId>com.grievance</groupId>
+    <artifactId>grievance-redressal-system-backend</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+    
+    <!-- ==================== PROJECT INFORMATION ==================== -->
+    <name>Grievance Redressal System - Backend</name>
+    <description>
+        Microservices-based E-Governance Grievance Redressal System.
+        Capstone Project using Spring Boot, Spring Cloud, and Angular.
+    </description>
+    
+    <!-- ==================== CHILD MODULES ==================== -->
+    <!-- 
+        Order matters: infrastructure services first, then business services.
+        Start-up order: service-registry -> config-server -> api-gateway -> other services
+    -->
+    <modules>
+        <!-- Infrastructure Services -->
+        <module>service-registry</module>
+        <module>config-server</module>
+        <module>api-gateway</module>
+        
+        <!-- Business Services -->
+        <module>auth-service</module>
+        <module>user-service</module>
+        <module>department-service</module>
+        <module>grievance-service</module>
+        <module>notification-service</module>
+        <module>report-service</module>
+    </modules>
+    
+    <!-- ==================== VERSION PROPERTIES ==================== -->
+    <!-- 
+        IMPORTANT: Update spring-boot.version to match what you see in Spring Initializr
+        Also update spring-cloud.version accordingly (see compatibility table below)
+        
+        Spring Boot <-> Spring Cloud Compatibility:
+        - Spring Boot 3.4.x -> Spring Cloud 2024.0.0
+        - Spring Boot 3.3.x -> Spring Cloud 2023.0.x
+        - Spring Boot 3.2.x -> Spring Cloud 2023.0.x
+    -->
+    <properties>
+        <!-- Java Version -->
+        <java.version>17</java.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        
+        <spring-boot.version>3.4.1</spring-boot.version>
+        <spring-cloud.version>2024.0.0</spring-cloud.version>
+        
+        <!-- Security - JWT -->
+        <jjwt.version>0.12.3</jjwt.version>
+        
+        <!-- Code Generation -->
+        <lombok.version>1.18.30</lombok.version>
+        <mapstruct.version>1.5.5.Final</mapstruct.version>
+        
+        <!-- Documentation -->
+        <springdoc.version>2.3.0</springdoc.version>
+    </properties>
+    
+    <!-- ==================== DEPENDENCY MANAGEMENT ==================== -->
+    <dependencyManagement>
+        <dependencies>
+            
+            <!-- Spring Boot BOM (Bill of Materials) -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            
+            <!-- Spring Cloud BOM -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            
+            <!-- JWT Libraries -->
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-api</artifactId>
+                <version>${jjwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-impl</artifactId>
+                <version>${jjwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-jackson</artifactId>
+                <version>${jjwt.version}</version>
+            </dependency>
+            
+            <!-- API Documentation - Swagger/OpenAPI -->
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+                <version>${springdoc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
+                <version>${springdoc.version}</version>
+            </dependency>
+            
+            <!-- MapStruct - DTO Mapping -->
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct</artifactId>
+                <version>${mapstruct.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct-processor</artifactId>
+                <version>${mapstruct.version}</version>
+            </dependency>
+            
+        </dependencies>
+    </dependencyManagement>
+    
+    <!-- ==================== COMMON DEPENDENCIES ==================== -->
+    <dependencies>
+        
+        <!-- Lombok - Reduces boilerplate code -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <optional>true</optional>
+        </dependency>
+        
+        <!-- Testing Framework -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        
+    </dependencies>
+    
+    <!-- ==================== BUILD CONFIGURATION ==================== -->
+    <build>
+        <pluginManagement>
+            <plugins>
+                
+                <!-- Spring Boot Maven Plugin -->
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring-boot.version}</version>
+                    <configuration>
+                        <excludes>
+                            <exclude>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                            </exclude>
+                        </excludes>
+                    </configuration>
+                </plugin>
+                
+                <!-- Maven Compiler Plugin -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.11.0</version>
+                    <configuration>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
+                            </path>
+                            <path>
+                                <groupId>org.mapstruct</groupId>
+                                <artifactId>mapstruct-processor</artifactId>
+                                <version>${mapstruct.version}</version>
+                            </path>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok-mapstruct-binding</artifactId>
+                                <version>0.2.0</version>
+                            </path>
+                        </annotationProcessorPaths>
+                    </configuration>
+                </plugin>
+                
+            </plugins>
+        </pluginManagement>
+    </build>
+    
+</project>
