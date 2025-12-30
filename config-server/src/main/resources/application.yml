@@ -1,0 +1,27 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: config-server
+
+  profiles:
+    active: local
+
+  cloud:
+    compatibility-verifier:
+      enabled: false
+
+    config:
+      server:
+        git:
+          # will update later to GitHub
+          uri: https://github.com/DebarghyaSikder/grievance-config-repo
+          default-label: main
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
