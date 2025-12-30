@@ -26,11 +26,8 @@
 
         <module>auth-service</module>          <!-- Port: 8081 | Authentication -->
         <module>grievance-service</module>     <!-- Port: 8084 | Grievances -->
-        <module>history-service</module>       <!-- Port: 8085 | Audit Trail -->
         <module>feedback-service</module>      <!-- Port: 8086 | Feedback -->
         <module>notification-service</module>  <!-- Port: 8087 | Notifications -->
-        <module>storage-service</module>       <!-- Port: 8088 | File Storage -->
-        <module>reporting-service</module>     <!-- Port: 8089 | Reports -->
     </modules>
 
     <properties>
