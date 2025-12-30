@@ -30,8 +30,7 @@ public class AuthServiceImpl implements AuthService {
             return new AuthResponse("Aadhaar already exists", null, null, null);
         }
 
-        // Citizens self-register => force CITIZEN role here
-        Role role = request.getRole() == null ? Role.CITIZEN : request.getRole();
+        Role role = Role.CITIZEN; // Citizens always self-register
 
         // Create hashed user
         User user = User.builder()
