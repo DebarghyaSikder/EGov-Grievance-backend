@@ -1,14 +1,6 @@
-server:
-  port: 8761
-
 spring:
-  application:
-    name: service-registry
+  config:
+    import: "optional:configserver:http://localhost:8888"
   cloud:
-    compatibility-verifier:
-      enabled: false
-
-eureka:
-  client:
-    register-with-eureka: false
-    fetch-registry: false
+    config:
+      fail-fast: true
