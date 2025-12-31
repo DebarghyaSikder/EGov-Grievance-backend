@@ -26,12 +26,29 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        // Public API
                         .requestMatchers(
                                 "/api/v1/auth/register",
                                 "/api/v1/auth/login"
                         ).permitAll()
+
+                        // Authenticated but role-agnostic endpoints
+                        .requestMatchers("/api/v1/auth/me")
+                                .hasAnyAuthority(
+                                        "CITIZEN",
+                                        "DEPARTMENT_OFFICER",
+                                        "SUPERVISORY_OFFICER",
+                                        "SYSTEM_ADMIN"
+                                )
+
+                        // Add more role-protected endpoints later
+                        //.requestMatchers("/api/v1/admin/**").hasAuthority("SYSTEM_ADMIN")
+                        //.requestMatchers("/api/v1/grievance/assign/**").hasAnyAuthority("DEPARTMENT_OFFICER","SUPERVISORY_OFFICER")
+
+                        // Everything else must be authenticated
                         .anyRequest().authenticated()
                 )
+
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(jwtAuthEntryPoint)   // <-- add this
                 )
