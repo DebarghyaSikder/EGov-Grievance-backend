@@ -34,17 +34,17 @@ public class AuthServiceImpl implements AuthService {
             return new AuthResponse("Aadhaar already exists", null, null, null);
         }
 
-        Role role = Role.CITIZEN; // Citizens always self-register
+        Role roleToAssign = request.getRole() != null ? request.getRole() : Role.CITIZEN;
 
-        // Create hashed user
         User user = User.builder()
                 .fullName(request.getFullName())
                 .email(request.getEmail())
                 .aadhaarNumber(request.getAadhaarNumber())
                 .phone(request.getPhone())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(role)
+                .role(roleToAssign)
                 .build();
+
 
         userRepository.save(user);
 
@@ -80,3 +80,4 @@ public class AuthServiceImpl implements AuthService {
     }
 
 }
+

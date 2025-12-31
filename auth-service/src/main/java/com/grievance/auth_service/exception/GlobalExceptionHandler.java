@@ -28,3 +28,4 @@ public class GlobalExceptionHandler {
 
     public record ValidationErrorResponse(List<String> errors) {}
 }
+

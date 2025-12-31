@@ -1,7 +1,7 @@
 package com.grievance.auth_service.dto;
 
+import com.grievance.auth_service.entity.Role;
 import jakarta.validation.constraints.*;
-
 import lombok.*;
 
 @Data
@@ -17,15 +17,15 @@ public class RegisterRequest {
     @NotBlank(message = "Email is required")
     private String email;
 
-    @Pattern(regexp = "^[0-9]{12}$", message = "Aadhaar number must be 12 digits")
-    @NotBlank(message = "Aadhaar number is required")
+    @Pattern(regexp = "^[0-9]{12}$", message = "Aadhaar Number must be 12 digits")
     private String aadhaarNumber;
 
-    @Size(min = 8, max = 20, message = "Password must be between 8–20 characters")
     @NotBlank(message = "Password is required")
+    @Size(min = 6, message = "Password must be at least 6 characters long")
     private String password;
 
-    @Pattern(regexp = "^[0-9]{10}$", message = "Phone must be a 10-digit number")
-    @NotBlank(message = "Phone is required")
+    @Pattern(regexp = "^[0-9]{10}$", message = "Phone number must be 10 digits")
     private String phone;
+
+    private Role role;   
 }
