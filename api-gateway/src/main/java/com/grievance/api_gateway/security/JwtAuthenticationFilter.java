@@ -1,57 +1,56 @@
 package com.grievance.api_gateway.security;
 
-import com.grievance.api_gateway.service.JwtService;
-import io.jsonwebtoken.ExpiredJwtException;
+import com.grievance.api_gateway.util.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
+import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter implements WebFilter {
 
-    private final JwtService jwtService;
+    private final JwtUtils jwtUtils;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-        String path = exchange.getRequest().getURI().getPath();
 
-        // Allow public routes
-        if (path.contains("/api/v1/auth/register") ||
-                path.contains("/api/v1/auth/login")) {
-            return chain.filter(exchange);
-        }
+        String authHeader = exchange.getRequest()
+                .getHeaders()
+                .getFirst(HttpHeaders.AUTHORIZATION);
 
-        // Extract token
-        String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            return exchange.getResponse().setComplete();
+            return chain.filter(exchange); // proceed unauthenticated
         }
 
         String token = authHeader.substring(7);
 
         try {
-            String email = jwtService.extractEmail(token);
+            String email = jwtUtils.extractEmail(token);
+            String role  = jwtUtils.extractRole(token);
 
-            if (!jwtService.isTokenValid(token, email)) {
-                exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                return exchange.getResponse().setComplete();
-            }
+            var authentication = new UsernamePasswordAuthenticationToken(
+                    email,
+                    null,
+                    List.of(new SimpleGrantedAuthority(role))
+            );
 
-        } catch (ExpiredJwtException e) {
-            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            return exchange.getResponse().setComplete();
+            // 🔥 CRITICAL: Store auth inside WebFlux security context
+            return chain.filter(exchange)
+                    .contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication));
+
         } catch (Exception e) {
-            exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
-            return exchange.getResponse().setComplete();
+            return chain.filter(exchange); // invalid token → proceed unauthenticated
         }
-
-        return chain.filter(exchange);
     }
 }
