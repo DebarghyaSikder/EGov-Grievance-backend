@@ -68,8 +68,7 @@ public class AuthServiceImpl implements AuthService {
             return new AuthResponse("Invalid credentials", null, null, null);
         }
 
-        // generate token
-        String token = jwtService.generateToken(user.getEmail(), user.getRole().name());
+        String token = jwtService.generateToken(user);
 
         return AuthResponse.builder()
                 .message("Login successful")
