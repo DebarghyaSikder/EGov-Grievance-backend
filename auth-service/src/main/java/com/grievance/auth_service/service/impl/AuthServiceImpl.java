@@ -7,6 +7,8 @@ import com.grievance.auth_service.entity.Role;
 import com.grievance.auth_service.entity.User;
 import com.grievance.auth_service.repository.UserRepository;
 import com.grievance.auth_service.service.AuthService;
+import com.grievance.auth_service.service.JwtService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,8 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
+    
 
     @Override
     public AuthResponse register(RegisterRequest request) {
@@ -54,9 +58,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponse login(LoginRequest request) {
 
-        // login by email
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElse(null);
+        User user = userRepository.findByEmail(request.getEmail()).orElse(null);
 
         if (user == null) {
             return new AuthResponse("Invalid credentials", null, null, null);
@@ -66,11 +68,15 @@ public class AuthServiceImpl implements AuthService {
             return new AuthResponse("Invalid credentials", null, null, null);
         }
 
-        // JWT later 
+        // generate token
+        String token = jwtService.generateToken(user.getEmail(), user.getRole().name());
+
         return AuthResponse.builder()
                 .message("Login successful")
+                .token(token)
                 .role(user.getRole().name())
                 .userId(user.getId())
                 .build();
     }
+
 }
