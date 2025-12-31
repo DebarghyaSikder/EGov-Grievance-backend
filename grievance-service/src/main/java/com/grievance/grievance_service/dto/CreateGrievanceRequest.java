@@ -1,24 +1,23 @@
 package com.grievance.grievance_service.dto;
 
-import com.grievance.grievance_service.enums.Priority;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
 public class CreateGrievanceRequest {
 
-    @NotBlank(message = "Title is required")
+    @NotBlank(message = "Grievance title is required")
+    @Size(min = 5, max = 100, message = "Title must be between 5 and 100 characters")
     private String title;
 
     @NotBlank(message = "Description cannot be empty")
+    @Size(min = 10, message = "Description must be at least 10 characters")
     private String description;
 
-    @NotBlank(message = "Department is required")
-    private String department;
+    @NotBlank(message = "Category is required")
+    private String category; // ex: Water Supply, Electricity
 
-    private String category; // optional
-
-    @NotNull(message = "Priority is required")
-    private Priority priority;
+    @NotBlank(message = "Department assignment hint is required")
+    private String departmentHint; // supports future AI mapping
 }
