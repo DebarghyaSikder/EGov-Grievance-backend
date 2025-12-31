@@ -1,5 +1,6 @@
 package com.grievance.grievance_service.dto;
 
+import com.grievance.grievance_service.enums.Priority;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -16,8 +17,10 @@ public class CreateGrievanceRequest {
     private String description;
 
     @NotBlank(message = "Category is required")
-    private String category; // ex: Water Supply, Electricity
+    private String category;
 
-    @NotBlank(message = "Department assignment hint is required")
-    private String departmentHint; // supports future AI mapping
+    @NotBlank(message = "Department is required")
+    private String department;
+
+    private Priority priority; // optional for now; null = DEFAULT (MEDIUM)
 }
