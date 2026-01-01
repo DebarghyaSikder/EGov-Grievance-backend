@@ -32,7 +32,7 @@ public class GrievanceServiceImpl implements GrievanceService {
                 .description(request.getDescription())
                 .department(request.getDepartment())
                 .category(request.getCategory())
-                .priority(request.getPriority())
+                .priority(request.getPriority() != null ? request.getPriority() : com.grievance.grievance_service.enums.Priority.MEDIUM)
                 .status(Status.PENDING)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
