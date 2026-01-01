@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
 @Builder
 public class GrievanceResponse {
     private Long grievanceId;
+    private String message;
+    private String grievanceNumber;
     private Long citizenId;
     private String title;
     private String description;

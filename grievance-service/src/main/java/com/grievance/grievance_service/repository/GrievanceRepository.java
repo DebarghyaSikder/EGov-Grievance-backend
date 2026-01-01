@@ -15,6 +15,8 @@ public interface GrievanceRepository extends JpaRepository<Grievance, Long> {
 
     List<Grievance> findByCitizenId(Long citizenId);
 
+    List<Grievance> findByDepartment(String department);
+
     List<Grievance> findByAssignedOfficerId(Long officerId);
 
     List<Grievance> findByStatus(Status status);

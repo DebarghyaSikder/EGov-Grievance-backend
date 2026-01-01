@@ -1,7 +1,9 @@
 package com.grievance.grievance_service.entity;
 
+import com.grievance.grievance_service.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -15,21 +17,16 @@ public class GrievanceHistory {
     private Long id;
 
     private Long grievanceId;
-    private Long actionByUserId;
 
-    private String actionType;         // CREATED, ASSIGNED, etc.
-    private String prevStatus;
-    private String newStatus;
+    @Enumerated(EnumType.STRING)
+    private Status oldStatus;
 
-    @Column(columnDefinition = "TEXT")
-    private String comment;
+    @Enumerated(EnumType.STRING)
+    private Status newStatus;
 
-    private Long assignedTo;
+    private Long changedBy;
 
-    private LocalDateTime timestamp;
+    private String remarks;
 
-    @PrePersist
-    public void onCreate() {
-        timestamp = LocalDateTime.now();
-    }
+    private LocalDateTime changedAt;
 }

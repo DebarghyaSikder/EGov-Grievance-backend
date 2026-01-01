@@ -4,10 +4,11 @@ import com.grievance.grievance_service.enums.Priority;
 import com.grievance.grievance_service.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "grievance")
+@Table(name = "grievances")
 @Getter @Setter @Builder
 @NoArgsConstructor @AllArgsConstructor
 public class Grievance {
@@ -17,7 +18,7 @@ public class Grievance {
     private Long id;
 
     @Column(unique = true, nullable = false)
-    private String grievanceNumber; // GRV-202501-0001 style
+    private String grievanceNumber;
 
     private Long citizenId;
 
@@ -43,15 +44,5 @@ public class Grievance {
 
     private LocalDateTime updatedAt;
 
-    @PrePersist
-    public void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = createdAt;
-        status = Status.PENDING;
-    }
-
-    @PreUpdate
-    public void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+    private LocalDateTime resolvedAt;
 }

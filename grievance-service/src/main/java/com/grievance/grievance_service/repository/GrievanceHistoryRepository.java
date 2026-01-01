@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface GrievanceHistoryRepository extends JpaRepository<GrievanceHistory, Long> {
 
-    List<GrievanceHistory> findByGrievanceIdOrderByTimestampAsc(Long grievanceId);
+    List<GrievanceHistory> findByGrievanceIdOrderByChangedAtAsc(Long grievanceId);
 }
