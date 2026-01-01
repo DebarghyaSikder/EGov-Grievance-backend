@@ -3,28 +3,32 @@ package com.grievance.api_gateway.util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import java.util.Map;
 
 @Component
 public class JwtUtils {
 
-    private final String SECRET = "THIS_IS_A_TEMP_SECRET_CHANGE_IT_LATER_32CHARS";
+    @Value("${jwt.secret}")
+    private String secret;
 
-    private Claims extractAll(String token) {
+    private Claims extractAllClaims(String token) {
         return Jwts.parser()
-                .verifyWith(Keys.hmacShaKeyFor(SECRET.getBytes()))
+                .verifyWith(Keys.hmacShaKeyFor(secret.getBytes()))
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
     }
 
     public String extractEmail(String token) {
-        return extractAll(token).get("email", String.class);
+        return extractAllClaims(token).get("email", String.class);
     }
 
     public String extractRole(String token) {
-        return extractAll(token).get("role", String.class);
+        return extractAllClaims(token).get("role", String.class);
+    }
+
+    public Long extractUserId(String token) {
+        return extractAllClaims(token).get("userId", Long.class);
     }
 }
