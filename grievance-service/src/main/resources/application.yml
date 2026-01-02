@@ -1,6 +1,6 @@
 spring:
   application:
-    name: GRIEVANCE-SERVICE
+    name: grievance-service
   config:
     import: "optional:configserver:http://localhost:8888"
   datasource:
@@ -8,7 +8,6 @@ spring:
     username: root
     password: Nike2004$
     driver-class-name: com.mysql.cj.jdbc.Driver
-
   jpa:
     hibernate:
       ddl-auto: update
@@ -20,10 +19,10 @@ spring:
 
 server:
   port: 8084
-  servlet:
-    context-path: /
 
 eureka:
+  instance:
+    prefer-ip-address: true
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka

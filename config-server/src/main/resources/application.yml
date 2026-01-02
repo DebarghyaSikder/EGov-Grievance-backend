@@ -15,7 +15,6 @@ spring:
     config:
       server:
         git:
-          # will update later to GitHub
           uri: https://github.com/DebarghyaSikder/grievance-config-repo
           default-label: main
 
