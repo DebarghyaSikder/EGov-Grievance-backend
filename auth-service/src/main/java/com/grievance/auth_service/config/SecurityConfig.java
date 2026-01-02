@@ -20,23 +20,18 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
     private final JwtAuthEntryPoint jwtAuthEntryPoint;
 
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                // Public API
                 .requestMatchers(
                         "/api/v1/auth/register",
                         "/api/v1/auth/login"
                 ).permitAll()
-
-                // Authenticated endpoints  
+                // Internal endpoints - only for service-to-service communication
+                .requestMatchers("/api/v1/auth/internal/**").permitAll()
                 .requestMatchers("/api/v1/auth/me").authenticated()
-
-                // Later we'll add role-based endpoints here
-
                 .anyRequest().authenticated()
             )
             .exceptionHandling(ex -> ex
@@ -50,9 +45,4 @@ public class SecurityConfig {
 
         return http.build();
     }
-
-
 }
-
-
-

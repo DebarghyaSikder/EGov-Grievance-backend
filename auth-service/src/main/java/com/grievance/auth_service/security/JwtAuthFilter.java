@@ -24,6 +24,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final CustomUserDetailsService customUserDetailsService;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.equals("/api/v1/auth/login") ||
+               path.equals("/api/v1/auth/register") ||
+               path.startsWith("/api/v1/auth/internal/");
+    }
+
+    @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain)
@@ -31,7 +39,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         final String authHeader = request.getHeader("Authorization");
 
-        // no JWT provided → continue without authentication
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -40,12 +47,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         final String token = authHeader.substring(7);
 
         try {
-            // extract email
             String email = jwtService.extractEmail(token);
 
-            // check if already authenticated
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-
                 UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
 
                 if (jwtService.isTokenValid(token, email)) {
@@ -60,16 +64,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                             new WebAuthenticationDetailsSource().buildDetails(request)
                     );
 
-                    // this line AUTHENTICATES the user in Spring Security
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }
-
         } catch (JwtException ex) {
-            System.out.println("JWT validation failed: " + ex.getMessage());
+            logger.warn("JWT validation failed: " + ex.getMessage());
         }
 
         filterChain.doFilter(request, response);
     }
 }
-

@@ -40,19 +40,20 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<Map<String, Object>> getCurrentUser(Authentication authentication) {
         User user = (User) authentication.getPrincipal();
-        
+
         Map<String, Object> response = new HashMap<>();
         response.put("id", user.getId());
         response.put("email", user.getEmail());
         response.put("fullName", user.getFullName());
         response.put("phone", user.getPhone());
         response.put("role", user.getRole().name());
-        
+
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<Map<String, Object>> getUserById(@PathVariable Long userId) {
+    // Internal endpoint - only for service-to-service calls
+    @GetMapping("/internal/user/{userId}")
+    public ResponseEntity<Map<String, Object>> getUserByIdInternal(@PathVariable Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
