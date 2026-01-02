@@ -85,6 +85,7 @@ public class GrievanceEventListener {
         return switch (newStatus) {
             case "ASSIGNED" -> "Officer Assigned to Your Grievance";
             case "IN_PROGRESS" -> "Grievance In Progress";
+            case "ESCALATED" -> "Grievance Escalated";
             case "RESOLVED" -> "Grievance Resolved";
             case "CLOSED" -> "Grievance Closed";
             case "REJECTED" -> "Grievance Rejected";
@@ -95,6 +96,7 @@ public class GrievanceEventListener {
     private NotificationType mapStatusToNotificationType(String status) {
         return switch (status) {
             case "ASSIGNED" -> NotificationType.GRIEVANCE_ASSIGNED;
+            case "ESCALATED" -> NotificationType.GRIEVANCE_ESCALATED;
             case "RESOLVED" -> NotificationType.GRIEVANCE_RESOLVED;
             case "CLOSED" -> NotificationType.GRIEVANCE_CLOSED;
             default -> NotificationType.STATUS_CHANGED;

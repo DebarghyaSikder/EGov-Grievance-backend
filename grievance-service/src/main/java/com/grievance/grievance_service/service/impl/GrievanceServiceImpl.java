@@ -49,7 +49,6 @@ public class GrievanceServiceImpl implements GrievanceService {
 
         saveHistory(grievance, null, Status.PENDING, citizenId, "Grievance submitted");
 
-        // Publish event to RabbitMQ
         publishGrievanceCreatedEvent(grievance, citizenId);
 
         return GrievanceResponse.builder()
@@ -118,7 +117,6 @@ public class GrievanceServiceImpl implements GrievanceService {
 
         saveHistory(grievance, oldStatus, newStatus, officerId, request.getRemarks());
 
-        // Publish event to RabbitMQ
         publishStatusChangedEvent(grievance, oldStatus, newStatus, request.getRemarks());
 
         return grievance;
@@ -138,12 +136,17 @@ public class GrievanceServiceImpl implements GrievanceService {
 
         saveHistory(grievance, oldStatus, Status.ASSIGNED, request.getOfficerId(), "Assigned to officer");
 
-        // Publish event to RabbitMQ
         publishStatusChangedEvent(grievance, oldStatus, Status.ASSIGNED, "Officer assigned to grievance");
 
         return grievance;
     }
-    
+
+    @Override
+    public List<Grievance> getGrievancesByStatus(String status) {
+        Status statusEnum = Status.valueOf(status.toUpperCase());
+        return grievanceRepository.findByStatus(statusEnum);
+    }
+
     @Override
     @Transactional
     public Grievance escalateGrievance(Long id, String reason) {
@@ -175,18 +178,13 @@ public class GrievanceServiceImpl implements GrievanceService {
 
         grievanceRepository.save(grievance);
 
-        String remarks = String.format("Reassigned from officer %d to officer %d", previousOfficerId, request.getOfficerId());
+        String remarks = String.format("Reassigned from officer %d to officer %d", 
+                previousOfficerId != null ? previousOfficerId : 0, request.getOfficerId());
         saveHistory(grievance, oldStatus, Status.ASSIGNED, request.getOfficerId(), remarks);
 
         publishStatusChangedEvent(grievance, oldStatus, Status.ASSIGNED, remarks);
 
         return grievance;
-    }
-
-    @Override
-    public List<Grievance> getGrievancesByStatus(String status) {
-        Status statusEnum = Status.valueOf(status.toUpperCase());
-        return grievanceRepository.findByStatus(statusEnum);
     }
 
     private String generateGrievanceNumber() {
