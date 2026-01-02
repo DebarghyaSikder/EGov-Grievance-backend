@@ -12,6 +12,8 @@ public interface GrievanceService {
     Grievance getGrievanceById(Long id);
 
     Grievance getByGrievanceNumber(String grievanceNumber);
+    Grievance escalateGrievance(Long id, String reason);
+    Grievance reassignOfficer(Long id, AssignOfficerRequest request);
 
     List<Grievance> getGrievancesByCitizenId(Long citizenId);
 

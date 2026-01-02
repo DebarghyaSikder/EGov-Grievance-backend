@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "grievances")
@@ -45,4 +47,8 @@ public class Grievance {
     private LocalDateTime updatedAt;
 
     private LocalDateTime resolvedAt;
+
+    @OneToMany(mappedBy = "grievance", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<GrievanceAttachment> attachments = new ArrayList<>();
 }

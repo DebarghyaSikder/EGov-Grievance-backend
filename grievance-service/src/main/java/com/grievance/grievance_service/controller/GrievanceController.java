@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/grievances")
@@ -104,6 +105,29 @@ public class GrievanceController {
         validateRole(role, "SYSTEM_ADMIN", "SUPERVISORY_OFFICER", "DEPARTMENT_OFFICER");
         List<Grievance> grievances = grievanceService.getGrievancesByStatus(status);
         return ResponseEntity.ok(grievances.stream().map(this::mapToResponse).toList());
+    }
+    
+    @PutMapping("/{id}/escalate")
+    public ResponseEntity<GrievanceResponse> escalateGrievance(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> request,
+            @RequestHeader("X-User-Role") String role
+    ) {
+        validateRole(role, "SUPERVISORY_OFFICER", "SYSTEM_ADMIN");
+        String reason = request.get("reason");
+        Grievance grievance = grievanceService.escalateGrievance(id, reason);
+        return ResponseEntity.ok(mapToResponse(grievance));
+    }
+
+    @PutMapping("/{id}/reassign")
+    public ResponseEntity<GrievanceResponse> reassignGrievance(
+            @PathVariable Long id,
+            @Valid @RequestBody AssignOfficerRequest request,
+            @RequestHeader("X-User-Role") String role
+    ) {
+        validateRole(role, "SUPERVISORY_OFFICER", "SYSTEM_ADMIN");
+        Grievance grievance = grievanceService.reassignOfficer(id, request);
+        return ResponseEntity.ok(mapToResponse(grievance));
     }
 
     private void validateRole(String userRole, String... allowedRoles) {

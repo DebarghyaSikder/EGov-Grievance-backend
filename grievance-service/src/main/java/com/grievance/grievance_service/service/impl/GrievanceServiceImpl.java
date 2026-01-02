@@ -143,6 +143,45 @@ public class GrievanceServiceImpl implements GrievanceService {
 
         return grievance;
     }
+    
+    @Override
+    @Transactional
+    public Grievance escalateGrievance(Long id, String reason) {
+        Grievance grievance = getGrievanceById(id);
+        Status oldStatus = grievance.getStatus();
+
+        grievance.setStatus(Status.ESCALATED);
+        grievance.setUpdatedAt(LocalDateTime.now());
+
+        grievanceRepository.save(grievance);
+
+        saveHistory(grievance, oldStatus, Status.ESCALATED, null, "Escalated: " + reason);
+
+        publishStatusChangedEvent(grievance, oldStatus, Status.ESCALATED, "Escalated: " + reason);
+
+        return grievance;
+    }
+
+    @Override
+    @Transactional
+    public Grievance reassignOfficer(Long id, AssignOfficerRequest request) {
+        Grievance grievance = getGrievanceById(id);
+        Status oldStatus = grievance.getStatus();
+        Long previousOfficerId = grievance.getAssignedOfficerId();
+
+        grievance.setAssignedOfficerId(request.getOfficerId());
+        grievance.setStatus(Status.ASSIGNED);
+        grievance.setUpdatedAt(LocalDateTime.now());
+
+        grievanceRepository.save(grievance);
+
+        String remarks = String.format("Reassigned from officer %d to officer %d", previousOfficerId, request.getOfficerId());
+        saveHistory(grievance, oldStatus, Status.ASSIGNED, request.getOfficerId(), remarks);
+
+        publishStatusChangedEvent(grievance, oldStatus, Status.ASSIGNED, remarks);
+
+        return grievance;
+    }
 
     @Override
     public List<Grievance> getGrievancesByStatus(String status) {

@@ -4,7 +4,9 @@ public enum Status {
     PENDING,
     ASSIGNED,
     IN_PROGRESS,
+    ESCALATED,
     RESOLVED,
     CLOSED,
-    REJECTED
+    REJECTED,
+    REOPENED
 }
