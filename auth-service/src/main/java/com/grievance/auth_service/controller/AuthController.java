@@ -4,6 +4,7 @@ import com.grievance.auth_service.dto.AuthResponse;
 import com.grievance.auth_service.dto.LoginRequest;
 import com.grievance.auth_service.dto.RegisterRequest;
 import com.grievance.auth_service.entity.User;
+import com.grievance.auth_service.repository.UserRepository;
 import com.grievance.auth_service.service.AuthService;
 
 import jakarta.validation.Valid;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final UserRepository userRepository;
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
@@ -34,12 +36,21 @@ public class AuthController {
         AuthResponse response = authService.login(request);
         return ResponseEntity.ok(response);
     }
-    
+
     @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUser(Authentication authentication) {
-        return ResponseEntity.ok(authentication.getPrincipal());
+    public ResponseEntity<Map<String, Object>> getCurrentUser(Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("id", user.getId());
+        response.put("email", user.getEmail());
+        response.put("fullName", user.getFullName());
+        response.put("phone", user.getPhone());
+        response.put("role", user.getRole().name());
+        
+        return ResponseEntity.ok(response);
     }
-    
+
     @GetMapping("/user/{userId}")
     public ResponseEntity<Map<String, Object>> getUserById(@PathVariable Long userId) {
         User user = userRepository.findById(userId)
@@ -54,5 +65,4 @@ public class AuthController {
 
         return ResponseEntity.ok(response);
     }
-
 }
