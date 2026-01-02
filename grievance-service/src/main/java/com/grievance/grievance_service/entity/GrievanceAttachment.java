@@ -2,10 +2,11 @@ package com.grievance.grievance_service.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "grievance_attachment")
+@Table(name = "grievance_attachments")
 @Getter @Setter @Builder
 @NoArgsConstructor @AllArgsConstructor
 public class GrievanceAttachment {
@@ -14,18 +15,25 @@ public class GrievanceAttachment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long grievanceId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "grievance_id", nullable = false)
+    private Grievance grievance;
+
+    @Column(nullable = false)
     private String fileName;
+
+    @Column(nullable = false)
     private String fileType;
 
-    @Column(columnDefinition = "TEXT")
-    private String fileUrl;
+    @Column(nullable = false)
+    private String filePath;
 
-    private Long uploadedBy;
+    private Long fileSize;
+
     private LocalDateTime uploadedAt;
 
     @PrePersist
-    private void onUpload() {
+    public void onCreate() {
         uploadedAt = LocalDateTime.now();
     }
 }
