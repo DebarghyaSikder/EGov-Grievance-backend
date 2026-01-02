@@ -1,26 +1,33 @@
 package com.grievance.grievance_service.service.impl;
 
+import com.grievance.grievance_service.client.AuthServiceClient;
 import com.grievance.grievance_service.dto.*;
 import com.grievance.grievance_service.entity.Grievance;
 import com.grievance.grievance_service.entity.GrievanceHistory;
 import com.grievance.grievance_service.enums.Status;
 import com.grievance.grievance_service.repository.GrievanceHistoryRepository;
 import com.grievance.grievance_service.repository.GrievanceRepository;
+import com.grievance.grievance_service.service.GrievanceEventPublisher;
 import com.grievance.grievance_service.service.GrievanceService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class GrievanceServiceImpl implements GrievanceService {
 
     private final GrievanceRepository grievanceRepository;
     private final GrievanceHistoryRepository historyRepository;
+    private final GrievanceEventPublisher eventPublisher;
+    private final AuthServiceClient authServiceClient;
 
     @Override
     @Transactional
@@ -32,7 +39,7 @@ public class GrievanceServiceImpl implements GrievanceService {
                 .description(request.getDescription())
                 .department(request.getDepartment())
                 .category(request.getCategory())
-                .priority(request.getPriority() != null ? request.getPriority() : com.grievance.grievance_service.enums.Priority.MEDIUM)
+                .priority(request.getPriority())
                 .status(Status.PENDING)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
@@ -42,13 +49,16 @@ public class GrievanceServiceImpl implements GrievanceService {
 
         saveHistory(grievance, null, Status.PENDING, citizenId, "Grievance submitted");
 
+        // Publish event to RabbitMQ
+        publishGrievanceCreatedEvent(grievance, citizenId);
+
         return GrievanceResponse.builder()
                 .grievanceId(grievance.getId())
                 .message("Grievance submitted successfully")
                 .grievanceNumber(grievance.getGrievanceNumber())
                 .citizenId(grievance.getCitizenId())
                 .title(grievance.getTitle())
-                .description(grievance.getDescription()) 
+                .description(grievance.getDescription())
                 .category(grievance.getCategory())
                 .department(grievance.getDepartment())
                 .priority(grievance.getPriority().name())
@@ -108,6 +118,9 @@ public class GrievanceServiceImpl implements GrievanceService {
 
         saveHistory(grievance, oldStatus, newStatus, officerId, request.getRemarks());
 
+        // Publish event to RabbitMQ
+        publishStatusChangedEvent(grievance, oldStatus, newStatus, request.getRemarks());
+
         return grievance;
     }
 
@@ -124,6 +137,9 @@ public class GrievanceServiceImpl implements GrievanceService {
         grievanceRepository.save(grievance);
 
         saveHistory(grievance, oldStatus, Status.ASSIGNED, request.getOfficerId(), "Assigned to officer");
+
+        // Publish event to RabbitMQ
+        publishStatusChangedEvent(grievance, oldStatus, Status.ASSIGNED, "Officer assigned to grievance");
 
         return grievance;
     }
@@ -152,5 +168,59 @@ public class GrievanceServiceImpl implements GrievanceService {
                 .build();
 
         historyRepository.save(history);
+    }
+
+    private void publishGrievanceCreatedEvent(Grievance grievance, Long citizenId) {
+        try {
+            String citizenEmail = getCitizenEmail(citizenId);
+
+            GrievanceEvent event = GrievanceEvent.builder()
+                    .grievanceId(grievance.getId())
+                    .grievanceNumber(grievance.getGrievanceNumber())
+                    .citizenId(citizenId)
+                    .citizenEmail(citizenEmail)
+                    .title(grievance.getTitle())
+                    .department(grievance.getDepartment())
+                    .category(grievance.getCategory())
+                    .newStatus(grievance.getStatus().name())
+                    .build();
+
+            eventPublisher.publishGrievanceCreated(event);
+        } catch (Exception e) {
+            log.error("Failed to publish grievance created event: {}", e.getMessage());
+        }
+    }
+
+    private void publishStatusChangedEvent(Grievance grievance, Status oldStatus, Status newStatus, String remarks) {
+        try {
+            String citizenEmail = getCitizenEmail(grievance.getCitizenId());
+
+            GrievanceEvent event = GrievanceEvent.builder()
+                    .grievanceId(grievance.getId())
+                    .grievanceNumber(grievance.getGrievanceNumber())
+                    .citizenId(grievance.getCitizenId())
+                    .citizenEmail(citizenEmail)
+                    .title(grievance.getTitle())
+                    .department(grievance.getDepartment())
+                    .category(grievance.getCategory())
+                    .oldStatus(oldStatus != null ? oldStatus.name() : null)
+                    .newStatus(newStatus.name())
+                    .remarks(remarks)
+                    .build();
+
+            eventPublisher.publishStatusChanged(event);
+        } catch (Exception e) {
+            log.error("Failed to publish status changed event: {}", e.getMessage());
+        }
+    }
+
+    private String getCitizenEmail(Long citizenId) {
+        try {
+            Map<String, Object> user = authServiceClient.getUserById(citizenId);
+            return (String) user.get("email");
+        } catch (Exception e) {
+            log.error("Failed to get citizen email: {}", e.getMessage());
+            return null;
+        }
     }
 }
