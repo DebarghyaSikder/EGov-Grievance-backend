@@ -1,12 +1,12 @@
 package com.grievance.grievance_service.scheduler;
 
+import com.grievance.grievance_service.dto.GrievanceEvent;
 import com.grievance.grievance_service.entity.Grievance;
 import com.grievance.grievance_service.entity.GrievanceHistory;
 import com.grievance.grievance_service.enums.Status;
 import com.grievance.grievance_service.repository.GrievanceHistoryRepository;
 import com.grievance.grievance_service.repository.GrievanceRepository;
 import com.grievance.grievance_service.service.GrievanceEventPublisher;
-import com.grievance.grievance_service.dto.GrievanceEvent;
 import com.grievance.grievance_service.client.AuthServiceClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,24 +29,30 @@ public class EscalationScheduler {
     private final GrievanceEventPublisher eventPublisher;
     private final AuthServiceClient authServiceClient;
 
-    // Run every hour
-    @Scheduled(fixedRate = 3600000)
+    // Run every 5 minutes for testing (change to 3600000 for production - every hour)
+    @Scheduled(fixedRate = 300000)
     @Transactional
     public void checkAndEscalateGrievances() {
-        log.info("Running escalation check...");
+        log.info("========== AUTO-ESCALATION CHECK STARTED ==========");
 
         LocalDateTime now = LocalDateTime.now();
 
-        // Find grievances that are ASSIGNED or IN_PROGRESS and past SLA deadline
         List<Status> statusesToCheck = Arrays.asList(Status.ASSIGNED, Status.IN_PROGRESS);
 
-        List<Grievance> grievances = grievanceRepository.findByStatusInAndSlaDeadlineBefore(statusesToCheck, now);
+        List<Grievance> grievancesToEscalate = grievanceRepository
+                .findByStatusInAndSlaDeadlineBefore(statusesToCheck, now);
 
-        for (Grievance grievance : grievances) {
-            escalateGrievance(grievance);
+        log.info("Found {} grievances past SLA deadline", grievancesToEscalate.size());
+
+        for (Grievance grievance : grievancesToEscalate) {
+            try {
+                escalateGrievance(grievance);
+            } catch (Exception e) {
+                log.error("Failed to escalate grievance {}: {}", grievance.getGrievanceNumber(), e.getMessage());
+            }
         }
 
-        log.info("Escalation check completed. Escalated {} grievances.", grievances.size());
+        log.info("========== AUTO-ESCALATION CHECK COMPLETED ==========");
     }
 
     private void escalateGrievance(Grievance grievance) {
@@ -57,19 +63,27 @@ public class EscalationScheduler {
 
         grievanceRepository.save(grievance);
 
-        // Save history
         GrievanceHistory history = GrievanceHistory.builder()
                 .grievanceId(grievance.getId())
                 .oldStatus(oldStatus)
                 .newStatus(Status.ESCALATED)
                 .changedBy(null)
-                .remarks("Auto-escalated due to SLA breach")
+                .remarks("AUTO-ESCALATED: SLA breach - No resolution within " + grievance.getSlaHours() + " hours")
                 .changedAt(LocalDateTime.now())
                 .build();
 
         historyRepository.save(history);
 
-        // Publish event
+        publishEscalationEvent(grievance, oldStatus);
+
+        log.info("AUTO-ESCALATED: {} | Was: {} | SLA: {} hours | Deadline was: {}",
+                grievance.getGrievanceNumber(),
+                oldStatus,
+                grievance.getSlaHours(),
+                grievance.getSlaDeadline());
+    }
+
+    private void publishEscalationEvent(Grievance grievance, Status oldStatus) {
         try {
             String citizenEmail = getCitizenEmail(grievance.getCitizenId());
 
@@ -79,17 +93,17 @@ public class EscalationScheduler {
                     .citizenId(grievance.getCitizenId())
                     .citizenEmail(citizenEmail)
                     .title(grievance.getTitle())
+                    .department(grievance.getDepartmentName())
+                    .category(grievance.getCategoryName())
                     .oldStatus(oldStatus.name())
                     .newStatus(Status.ESCALATED.name())
-                    .remarks("Auto-escalated due to SLA breach")
+                    .remarks("AUTO-ESCALATED: SLA breach - No resolution within deadline")
                     .build();
 
             eventPublisher.publishStatusChanged(event);
         } catch (Exception e) {
             log.error("Failed to publish escalation event: {}", e.getMessage());
         }
-
-        log.info("Auto-escalated grievance: {}", grievance.getGrievanceNumber());
     }
 
     private String getCitizenEmail(Long citizenId) {

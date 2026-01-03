@@ -5,13 +5,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.server.WebFilter;
 
-import com.grievance.api_gateway.security.JwtAuthenticationFilter;
+import com.grievance.api_gateway.filter.JwtAuthFilter;
 
 @SpringBootApplication
 public class ApiGatewayApplication {
 
 	@Bean
-	public WebFilter jwtFilter(JwtAuthenticationFilter filter) {
+	public JwtAuthFilter jwtFilter(JwtAuthFilter filter) {
 	    return filter;
 	}
 

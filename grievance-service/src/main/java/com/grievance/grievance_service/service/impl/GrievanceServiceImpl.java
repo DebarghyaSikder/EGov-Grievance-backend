@@ -5,6 +5,7 @@ import com.grievance.grievance_service.dto.*;
 import com.grievance.grievance_service.entity.*;
 import com.grievance.grievance_service.enums.Priority;
 import com.grievance.grievance_service.enums.Status;
+import com.grievance.grievance_service.exception.ResourceNotFoundException;
 import com.grievance.grievance_service.repository.*;
 import com.grievance.grievance_service.service.AutoAssignmentService;
 import com.grievance.grievance_service.service.GrievanceEventPublisher;
@@ -92,13 +93,13 @@ public class GrievanceServiceImpl implements GrievanceService {
     @Override
     public Grievance getGrievanceById(Long id) {
         return grievanceRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Grievance not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Grievance", id));
     }
 
     @Override
     public Grievance getByGrievanceNumber(String grievanceNumber) {
         return grievanceRepository.findByGrievanceNumber(grievanceNumber)
-                .orElseThrow(() -> new RuntimeException("Grievance not found: " + grievanceNumber));
+                .orElseThrow(() -> new ResourceNotFoundException("Grievance", "grievanceNumber", grievanceNumber));
     }
 
     @Override

@@ -2,9 +2,13 @@ package com.grievance.grievance_service.controller;
 
 import com.grievance.grievance_service.dto.*;
 import com.grievance.grievance_service.entity.Grievance;
+import com.grievance.grievance_service.exception.AccessDeniedException;
+import com.grievance.grievance_service.scheduler.EscalationScheduler;
 import com.grievance.grievance_service.service.GrievanceService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +21,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class GrievanceController {
 
+	@Autowired
+	private EscalationScheduler escalationScheduler;
     private final GrievanceService grievanceService;
 
     @PostMapping
@@ -168,13 +174,22 @@ public class GrievanceController {
         return ResponseEntity.ok(ApiResponse.success("Grievance reassigned successfully", data));
     }
 
+    @PostMapping("/admin/trigger-escalation")
+    public ResponseEntity<ApiResponse<String>> triggerEscalation(
+            @RequestHeader("X-User-Role") String role
+    ) {
+        validateRole(role, "SYSTEM_ADMIN");
+        escalationScheduler.checkAndEscalateGrievances();
+        return ResponseEntity.ok(ApiResponse.success("Escalation check triggered manually"));
+    }
+    
     private void validateRole(String userRole, String... allowedRoles) {
         for (String role : allowedRoles) {
             if (role.equalsIgnoreCase(userRole)) {
                 return;
             }
         }
-        throw new RuntimeException("Access denied. Required roles: " + String.join(", ", allowedRoles));
+        throw new AccessDeniedException(allowedRoles);
     }
 
     private GrievanceResponse mapToResponse(Grievance grievance) {

@@ -3,17 +3,8 @@ spring:
     name: api-gateway
   config:
     import: "optional:configserver:http://localhost:8888"
-  cloud:
-    config:
-      fail-fast: true
-    gateway:
-      default-filters:
-        - AddRequestHeader=Authorization, $request.header.Authorization
-      routes:
-        - id: auth-service
-          uri: lb://AUTH-SERVICE
-          predicates:
-            - Path=/api/v1/auth/**
+  profiles:
+    active: local
 
 eureka:
   instance:
