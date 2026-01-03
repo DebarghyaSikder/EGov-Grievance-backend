@@ -1,8 +1,7 @@
 package com.grievance.api_gateway.filter;
 
 import com.grievance.api_gateway.config.RouteValidator;
-import com.grievance.api_gateway.util.JwtUtil;
-import io.jsonwebtoken.Claims;
+import com.grievance.api_gateway.util.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -22,7 +21,7 @@ import reactor.core.publisher.Mono;
 public class JwtAuthFilter implements GlobalFilter, Ordered {
 
     private final RouteValidator routeValidator;
-    private final JwtUtil jwtUtil;
+    private final JwtUtils jwtUtils;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -53,11 +52,16 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
         String token = authHeader.substring(7);
 
         try {
-            Claims claims = jwtUtil.validateToken(token);
+            // Validate token
+            if (!jwtUtils.isTokenValid(token)) {
+                log.warn("Token is invalid or expired");
+                return onError(exchange, "Invalid or expired token", HttpStatus.UNAUTHORIZED);
+            }
 
-            String userId = jwtUtil.extractUserId(claims);
-            String role = jwtUtil.extractRole(claims);
-            String email = jwtUtil.extractEmail(claims);
+            // Extract user details from token
+            Long userId = jwtUtils.extractUserId(token);
+            String role = jwtUtils.extractRole(token);
+            String email = jwtUtils.extractEmail(token);
 
             log.info("User authenticated: userId={}, role={}, email={}", userId, role, email);
 
@@ -71,9 +75,9 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
 
             // Add user info to headers for downstream services
             ServerHttpRequest modifiedRequest = request.mutate()
-                    .header("X-User-Id", userId)
+                    .header("X-User-Id", String.valueOf(userId))
                     .header("X-User-Role", role)
-                    .header("X-User-Email", email)
+                    .header("X-User-Email", email != null ? email : "")
                     .build();
 
             return chain.filter(exchange.mutate().request(modifiedRequest).build());

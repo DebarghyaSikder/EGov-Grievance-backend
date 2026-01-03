@@ -1,6 +1,5 @@
 package com.grievance.api_gateway.config;
 
-import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -19,7 +18,6 @@ public class RouteValidator {
     private static final List<EndpointRole> ENDPOINT_ROLES = List.of(
             // CITIZEN endpoints
             new EndpointRole("POST", "/api/v1/grievances", List.of("CITIZEN", "SYSTEM_ADMIN")),
-            new EndpointRole("POST", "/api/v1/grievances/admin/trigger-escalation", List.of("SYSTEM_ADMIN")),
             new EndpointRole("GET", "/api/v1/grievances/my", List.of("CITIZEN", "SYSTEM_ADMIN")),
             new EndpointRole("GET", "/api/v1/grievances/tracking/.*", List.of("CITIZEN", "SYSTEM_ADMIN")),
             new EndpointRole("POST", "/api/v1/grievances/\\d+/attachments", List.of("CITIZEN", "SYSTEM_ADMIN")),
@@ -45,8 +43,9 @@ public class RouteValidator {
             new EndpointRole("PUT", "/api/v1/grievances/\\d+/escalate", List.of("SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
             new EndpointRole("PUT", "/api/v1/grievances/\\d+/reassign", List.of("SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
             new EndpointRole("GET", "/api/v1/feedbacks/average-rating", List.of("SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
+            new EndpointRole("POST", "/api/v1/grievances/admin/trigger-escalation", List.of("SYSTEM_ADMIN")),
 
-            // Common GET endpoints
+            // Common GET endpoints - all authenticated users
             new EndpointRole("GET", "/api/v1/grievances/\\d+", List.of("CITIZEN", "DEPARTMENT_OFFICER", "SUPERVISORY_OFFICER", "SYSTEM_ADMIN"))
     );
 
