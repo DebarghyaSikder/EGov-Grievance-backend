@@ -1,9 +1,8 @@
-package com.grievance.auth_service.exception;
+package com.grievance.feedback_service.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -17,22 +16,22 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<Map<String, Object>> handleBadCredentials(BadCredentialsException ex) {
-        log.error("Bad credentials: {}", ex.getMessage());
-        return buildResponse(HttpStatus.UNAUTHORIZED, "Invalid email or password");
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleResourceNotFound(ResourceNotFoundException ex) {
+        log.error("Resource not found: {}", ex.getMessage());
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
-    @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<Map<String, Object>> handleUserAlreadyExists(UserAlreadyExistsException ex) {
-        log.error("User already exists: {}", ex.getMessage());
+    @ExceptionHandler(DuplicateFeedbackException.class)
+    public ResponseEntity<Map<String, Object>> handleDuplicateFeedback(DuplicateFeedbackException ex) {
+        log.error("Duplicate feedback: {}", ex.getMessage());
         return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleUserNotFound(UserNotFoundException ex) {
-        log.error("User not found: {}", ex.getMessage());
-        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Map<String, Object>> handleAccessDenied(AccessDeniedException ex) {
+        log.error("Access denied: {}", ex.getMessage());
+        return buildResponse(HttpStatus.FORBIDDEN, ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -61,11 +60,14 @@ public class GlobalExceptionHandler {
 
         String message = ex.getMessage();
         if (message != null) {
-            if (message.contains("already exists") || message.contains("already registered")) {
-                return buildResponse(HttpStatus.CONFLICT, message);
-            }
             if (message.contains("not found")) {
                 return buildResponse(HttpStatus.NOT_FOUND, message);
+            }
+            if (message.contains("Access denied")) {
+                return buildResponse(HttpStatus.FORBIDDEN, message);
+            }
+            if (message.contains("already exists")) {
+                return buildResponse(HttpStatus.CONFLICT, message);
             }
         }
 
