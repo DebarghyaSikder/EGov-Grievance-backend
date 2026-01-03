@@ -2,11 +2,11 @@ package com.grievance.grievance_service.service.impl;
 
 import com.grievance.grievance_service.client.AuthServiceClient;
 import com.grievance.grievance_service.dto.*;
-import com.grievance.grievance_service.entity.Grievance;
-import com.grievance.grievance_service.entity.GrievanceHistory;
+import com.grievance.grievance_service.entity.*;
+import com.grievance.grievance_service.enums.Priority;
 import com.grievance.grievance_service.enums.Status;
-import com.grievance.grievance_service.repository.GrievanceHistoryRepository;
-import com.grievance.grievance_service.repository.GrievanceRepository;
+import com.grievance.grievance_service.repository.*;
+import com.grievance.grievance_service.service.AutoAssignmentService;
 import com.grievance.grievance_service.service.GrievanceEventPublisher;
 import com.grievance.grievance_service.service.GrievanceService;
 import lombok.RequiredArgsConstructor;
@@ -28,19 +28,32 @@ public class GrievanceServiceImpl implements GrievanceService {
     private final GrievanceHistoryRepository historyRepository;
     private final GrievanceEventPublisher eventPublisher;
     private final AuthServiceClient authServiceClient;
+    private final AutoAssignmentService autoAssignmentService;
 
     @Override
     @Transactional
     public GrievanceResponse createGrievance(CreateGrievanceRequest request, Long citizenId) {
+        Integer slaHours = request.getSlaHours() != null ? request.getSlaHours() : 48;
+
+        Priority priority = request.getPriority();
+        if (priority == null) {
+            priority = determinePriority(slaHours);
+        }
+
         Grievance grievance = Grievance.builder()
                 .grievanceNumber(generateGrievanceNumber())
                 .citizenId(citizenId)
+                .departmentId(request.getDepartmentId())
+                .departmentName(request.getDepartmentName())
+                .categoryId(request.getCategoryId())
+                .categoryName(request.getCategoryName())
+                .subCategoryId(request.getSubCategoryId())
+                .subCategoryName(request.getSubCategoryName())
                 .title(request.getTitle())
                 .description(request.getDescription())
-                .department(request.getDepartment())
-                .category(request.getCategory())
-                .priority(request.getPriority())
+                .priority(priority)
                 .status(Status.PENDING)
+                .slaHours(slaHours)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
@@ -49,22 +62,26 @@ public class GrievanceServiceImpl implements GrievanceService {
 
         saveHistory(grievance, null, Status.PENDING, citizenId, "Grievance submitted");
 
+        // Auto-assign officer
+        Long assignedOfficerId = autoAssignmentService.assignOfficer(grievance);
+
+        if (assignedOfficerId != null) {
+            grievance.setAssignedOfficerId(assignedOfficerId);
+            grievance.setStatus(Status.ASSIGNED);
+            grievance.setAssignedAt(LocalDateTime.now());
+            grievance.setSlaDeadline(LocalDateTime.now().plusHours(slaHours));
+            grievance.setUpdatedAt(LocalDateTime.now());
+
+            grievanceRepository.save(grievance);
+
+            saveHistory(grievance, Status.PENDING, Status.ASSIGNED, assignedOfficerId, "Auto-assigned to officer");
+
+            publishStatusChangedEvent(grievance, Status.PENDING, Status.ASSIGNED, "Auto-assigned to officer");
+        }
+
         publishGrievanceCreatedEvent(grievance, citizenId);
 
-        return GrievanceResponse.builder()
-                .grievanceId(grievance.getId())
-                .message("Grievance submitted successfully")
-                .grievanceNumber(grievance.getGrievanceNumber())
-                .citizenId(grievance.getCitizenId())
-                .title(grievance.getTitle())
-                .description(grievance.getDescription())
-                .category(grievance.getCategory())
-                .department(grievance.getDepartment())
-                .priority(grievance.getPriority().name())
-                .status(grievance.getStatus().name())
-                .createdAt(grievance.getCreatedAt())
-                .updatedAt(grievance.getUpdatedAt())
-                .build();
+        return mapToResponse(grievance, "Grievance submitted successfully");
     }
 
     @Override
@@ -86,7 +103,7 @@ public class GrievanceServiceImpl implements GrievanceService {
 
     @Override
     public List<Grievance> getGrievancesByDepartment(String department) {
-        return grievanceRepository.findByDepartment(department);
+        return grievanceRepository.findByDepartmentName(department);
     }
 
     @Override
@@ -111,6 +128,10 @@ public class GrievanceServiceImpl implements GrievanceService {
 
         if (newStatus == Status.RESOLVED || newStatus == Status.CLOSED) {
             grievance.setResolvedAt(LocalDateTime.now());
+
+            if (grievance.getAssignedOfficerId() != null) {
+                autoAssignmentService.decrementOfficerLoad(grievance.getAssignedOfficerId());
+            }
         }
 
         grievanceRepository.save(grievance);
@@ -130,13 +151,15 @@ public class GrievanceServiceImpl implements GrievanceService {
 
         grievance.setAssignedOfficerId(request.getOfficerId());
         grievance.setStatus(Status.ASSIGNED);
+        grievance.setAssignedAt(LocalDateTime.now());
+        grievance.setSlaDeadline(LocalDateTime.now().plusHours(grievance.getSlaHours() != null ? grievance.getSlaHours() : 48));
         grievance.setUpdatedAt(LocalDateTime.now());
 
         grievanceRepository.save(grievance);
 
-        saveHistory(grievance, oldStatus, Status.ASSIGNED, request.getOfficerId(), "Assigned to officer");
+        saveHistory(grievance, oldStatus, Status.ASSIGNED, request.getOfficerId(), "Manually assigned to officer");
 
-        publishStatusChangedEvent(grievance, oldStatus, Status.ASSIGNED, "Officer assigned to grievance");
+        publishStatusChangedEvent(grievance, oldStatus, Status.ASSIGNED, "Manually assigned to officer");
 
         return grievance;
     }
@@ -172,19 +195,31 @@ public class GrievanceServiceImpl implements GrievanceService {
         Status oldStatus = grievance.getStatus();
         Long previousOfficerId = grievance.getAssignedOfficerId();
 
+        if (previousOfficerId != null) {
+            autoAssignmentService.decrementOfficerLoad(previousOfficerId);
+        }
+
         grievance.setAssignedOfficerId(request.getOfficerId());
         grievance.setStatus(Status.ASSIGNED);
+        grievance.setAssignedAt(LocalDateTime.now());
+        grievance.setSlaDeadline(LocalDateTime.now().plusHours(grievance.getSlaHours() != null ? grievance.getSlaHours() : 48));
         grievance.setUpdatedAt(LocalDateTime.now());
 
         grievanceRepository.save(grievance);
 
-        String remarks = String.format("Reassigned from officer %d to officer %d", 
+        String remarks = String.format("Reassigned from officer %d to officer %d",
                 previousOfficerId != null ? previousOfficerId : 0, request.getOfficerId());
         saveHistory(grievance, oldStatus, Status.ASSIGNED, request.getOfficerId(), remarks);
 
         publishStatusChangedEvent(grievance, oldStatus, Status.ASSIGNED, remarks);
 
         return grievance;
+    }
+
+    private Priority determinePriority(Integer slaHours) {
+        if (slaHours <= 12) return Priority.HIGH;
+        if (slaHours <= 48) return Priority.MEDIUM;
+        return Priority.LOW;
     }
 
     private String generateGrievanceNumber() {
@@ -217,8 +252,8 @@ public class GrievanceServiceImpl implements GrievanceService {
                     .citizenId(citizenId)
                     .citizenEmail(citizenEmail)
                     .title(grievance.getTitle())
-                    .department(grievance.getDepartment())
-                    .category(grievance.getCategory())
+                    .department(grievance.getDepartmentName())
+                    .category(grievance.getCategoryName())
                     .newStatus(grievance.getStatus().name())
                     .build();
 
@@ -238,8 +273,8 @@ public class GrievanceServiceImpl implements GrievanceService {
                     .citizenId(grievance.getCitizenId())
                     .citizenEmail(citizenEmail)
                     .title(grievance.getTitle())
-                    .department(grievance.getDepartment())
-                    .category(grievance.getCategory())
+                    .department(grievance.getDepartmentName())
+                    .category(grievance.getCategoryName())
                     .oldStatus(oldStatus != null ? oldStatus.name() : null)
                     .newStatus(newStatus.name())
                     .remarks(remarks)
@@ -259,5 +294,30 @@ public class GrievanceServiceImpl implements GrievanceService {
             log.error("Failed to get citizen email: {}", e.getMessage());
             return null;
         }
+    }
+
+    private GrievanceResponse mapToResponse(Grievance grievance, String message) {
+        return GrievanceResponse.builder()
+                .grievanceId(grievance.getId())
+                .message(message)
+                .grievanceNumber(grievance.getGrievanceNumber())
+                .citizenId(grievance.getCitizenId())
+                .title(grievance.getTitle())
+                .description(grievance.getDescription())
+                .departmentId(grievance.getDepartmentId())
+                .departmentName(grievance.getDepartmentName())
+                .categoryId(grievance.getCategoryId())
+                .categoryName(grievance.getCategoryName())
+                .subCategoryId(grievance.getSubCategoryId())
+                .subCategoryName(grievance.getSubCategoryName())
+                .priority(grievance.getPriority() != null ? grievance.getPriority().name() : null)
+                .status(grievance.getStatus() != null ? grievance.getStatus().name() : null)
+                .assignedOfficerId(grievance.getAssignedOfficerId())
+                .slaHours(grievance.getSlaHours())
+                .slaDeadline(grievance.getSlaDeadline())
+                .createdAt(grievance.getCreatedAt())
+                .updatedAt(grievance.getUpdatedAt())
+                .assignedAt(grievance.getAssignedAt())
+                .build();
     }
 }

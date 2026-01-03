@@ -2,25 +2,38 @@ package com.grievance.grievance_service.dto;
 
 import com.grievance.grievance_service.enums.Priority;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
 public class CreateGrievanceRequest {
 
-    @NotBlank(message = "Grievance title is required")
-    @Size(min = 5, max = 100, message = "Title must be between 5 and 100 characters")
+    @NotNull(message = "Department ID is required")
+    private Long departmentId;
+
+    @NotBlank(message = "Department name is required")
+    private String departmentName;
+
+    @NotNull(message = "Category ID is required")
+    private Long categoryId;
+
+    @NotBlank(message = "Category name is required")
+    private String categoryName;
+
+    @NotNull(message = "Sub-category ID is required")
+    private Long subCategoryId;
+
+    @NotBlank(message = "Sub-category name is required")
+    private String subCategoryName;
+
+    @NotNull(message = "SLA hours is required")
+    private Integer slaHours;
+
+    @NotBlank(message = "Title is required")
     private String title;
 
-    @NotBlank(message = "Description cannot be empty")
-    @Size(min = 10, message = "Description must be at least 10 characters")
+    @NotBlank(message = "Description is required")
     private String description;
 
-    @NotBlank(message = "Category is required")
-    private String category;
-
-    @NotBlank(message = "Department is required")
-    private String department;
-
-    private Priority priority; // optional for now; null = DEFAULT (MEDIUM)
+    private Priority priority;
 }

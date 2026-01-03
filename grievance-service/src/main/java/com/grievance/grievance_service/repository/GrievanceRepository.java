@@ -5,6 +5,7 @@ import com.grievance.grievance_service.enums.Status;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,9 +16,13 @@ public interface GrievanceRepository extends JpaRepository<Grievance, Long> {
 
     List<Grievance> findByCitizenId(Long citizenId);
 
-    List<Grievance> findByDepartment(String department);
+    List<Grievance> findByDepartmentId(Long departmentId);
+
+    List<Grievance> findByDepartmentName(String departmentName);
 
     List<Grievance> findByAssignedOfficerId(Long officerId);
 
     List<Grievance> findByStatus(Status status);
+
+    List<Grievance> findByStatusInAndSlaDeadlineBefore(List<Status> statuses, LocalDateTime deadline);
 }

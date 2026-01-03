@@ -146,12 +146,20 @@ public class GrievanceController {
                 .citizenId(grievance.getCitizenId())
                 .title(grievance.getTitle())
                 .description(grievance.getDescription())
-                .category(grievance.getCategory())
-                .department(grievance.getDepartment())
+                .departmentId(grievance.getDepartmentId())
+                .departmentName(grievance.getDepartmentName())
+                .categoryId(grievance.getCategoryId())
+                .categoryName(grievance.getCategoryName())
+                .subCategoryId(grievance.getSubCategoryId())
+                .subCategoryName(grievance.getSubCategoryName())
                 .priority(grievance.getPriority() != null ? grievance.getPriority().name() : null)
                 .status(grievance.getStatus() != null ? grievance.getStatus().name() : null)
+                .assignedOfficerId(grievance.getAssignedOfficerId())
+                .slaHours(grievance.getSlaHours())
+                .slaDeadline(grievance.getSlaDeadline())
                 .createdAt(grievance.getCreatedAt())
                 .updatedAt(grievance.getUpdatedAt())
+                .assignedAt(grievance.getAssignedAt())
                 .build();
     }
 }

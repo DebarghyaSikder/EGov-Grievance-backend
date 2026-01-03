@@ -24,9 +24,17 @@ public class Grievance {
 
     private Long citizenId;
 
-    private String department;
+    private Long departmentId;
+    
+    private String departmentName;
 
-    private String category;
+    private Long categoryId;
+    
+    private String categoryName;
+
+    private Long subCategoryId;
+    
+    private String subCategoryName;
 
     @Enumerated(EnumType.STRING)
     private Priority priority;
@@ -42,11 +50,17 @@ public class Grievance {
 
     private Long assignedOfficerId;
 
+    private Integer slaHours;
+
+    private LocalDateTime slaDeadline;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
 
     private LocalDateTime resolvedAt;
+
+    private LocalDateTime assignedAt;
 
     @OneToMany(mappedBy = "grievance", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
