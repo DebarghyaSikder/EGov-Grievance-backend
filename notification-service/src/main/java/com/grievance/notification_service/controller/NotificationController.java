@@ -5,6 +5,7 @@ import com.grievance.notification_service.dto.NotificationResponse;
 import com.grievance.notification_service.service.NotificationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,11 +20,18 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @PostMapping
-    public ResponseEntity<NotificationResponse> createNotification(
+    public ResponseEntity<Map<String, Object>> createNotification(
             @Valid @RequestBody CreateNotificationRequest request
     ) {
         NotificationResponse response = notificationService.createNotification(request);
-        return ResponseEntity.ok(response);
+        
+        Map<String, Object> result = Map.of(
+                "success", true,
+                "message", "Notification created successfully",
+                "notificationId", response.getId()
+        );
+        
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
     @GetMapping("/my")
@@ -51,16 +59,28 @@ public class NotificationController {
     }
 
     @PutMapping("/{id}/read")
-    public ResponseEntity<NotificationResponse> markAsRead(@PathVariable Long id) {
-        NotificationResponse response = notificationService.markAsRead(id);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<Map<String, Object>> markAsRead(@PathVariable Long id) {
+        notificationService.markAsRead(id);
+        
+        Map<String, Object> result = Map.of(
+                "success", true,
+                "message", "Notification marked as read"
+        );
+        
+        return ResponseEntity.ok(result);
     }
 
     @PutMapping("/mark-all-read")
-    public ResponseEntity<Map<String, String>> markAllAsRead(
+    public ResponseEntity<Map<String, Object>> markAllAsRead(
             @RequestHeader("X-User-Id") Long userId
     ) {
         notificationService.markAllAsRead(userId);
-        return ResponseEntity.ok(Map.of("message", "All notifications marked as read"));
+        
+        Map<String, Object> result = Map.of(
+                "success", true,
+                "message", "All notifications marked as read"
+        );
+        
+        return ResponseEntity.ok(result);
     }
 }

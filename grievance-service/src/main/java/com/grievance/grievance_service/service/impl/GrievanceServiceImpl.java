@@ -32,7 +32,7 @@ public class GrievanceServiceImpl implements GrievanceService {
 
     @Override
     @Transactional
-    public GrievanceResponse createGrievance(CreateGrievanceRequest request, Long citizenId) {
+    public GrievanceCreatedResponse createGrievance(CreateGrievanceRequest request, Long citizenId) {
         Integer slaHours = request.getSlaHours() != null ? request.getSlaHours() : 48;
 
         Priority priority = request.getPriority();
@@ -81,7 +81,12 @@ public class GrievanceServiceImpl implements GrievanceService {
 
         publishGrievanceCreatedEvent(grievance, citizenId);
 
-        return mapToResponse(grievance, "Grievance submitted successfully");
+        return GrievanceCreatedResponse.builder()
+                .grievanceId(grievance.getId())
+                .grievanceNumber(grievance.getGrievanceNumber())
+                .status(grievance.getStatus().name())
+                .assignedOfficerId(grievance.getAssignedOfficerId())
+                .build();
     }
 
     @Override
@@ -129,6 +134,7 @@ public class GrievanceServiceImpl implements GrievanceService {
         if (newStatus == Status.RESOLVED || newStatus == Status.CLOSED) {
             grievance.setResolvedAt(LocalDateTime.now());
 
+            // Decrement officer load when grievance is resolved/closed
             if (grievance.getAssignedOfficerId() != null) {
                 autoAssignmentService.decrementOfficerLoad(grievance.getAssignedOfficerId());
             }
@@ -195,9 +201,13 @@ public class GrievanceServiceImpl implements GrievanceService {
         Status oldStatus = grievance.getStatus();
         Long previousOfficerId = grievance.getAssignedOfficerId();
 
+        // Decrement previous officer's load
         if (previousOfficerId != null) {
             autoAssignmentService.decrementOfficerLoad(previousOfficerId);
         }
+
+        // Increment new officer's load
+        autoAssignmentService.incrementOfficerLoad(request.getOfficerId());
 
         grievance.setAssignedOfficerId(request.getOfficerId());
         grievance.setStatus(Status.ASSIGNED);

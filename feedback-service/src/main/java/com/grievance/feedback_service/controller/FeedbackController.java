@@ -5,10 +5,12 @@ import com.grievance.feedback_service.dto.FeedbackResponse;
 import com.grievance.feedback_service.service.FeedbackService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/feedbacks")
@@ -18,12 +20,19 @@ public class FeedbackController {
     private final FeedbackService feedbackService;
 
     @PostMapping
-    public ResponseEntity<FeedbackResponse> submitFeedback(
+    public ResponseEntity<Map<String, Object>> submitFeedback(
             @Valid @RequestBody CreateFeedbackRequest request,
             @RequestHeader("X-User-Id") Long citizenId
     ) {
         FeedbackResponse response = feedbackService.submitFeedback(request, citizenId);
-        return ResponseEntity.ok(response);
+        
+        Map<String, Object> result = Map.of(
+                "success", true,
+                "message", response.getMessage() != null ? response.getMessage() : "Feedback submitted successfully",
+                "feedbackId", response.getId() != null ? response.getId() : 0
+        );
+        
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
     @GetMapping("/grievance/{grievanceId}")
@@ -39,10 +48,16 @@ public class FeedbackController {
     }
 
     @GetMapping("/average-rating")
-    public ResponseEntity<Double> getAverageRating(@RequestHeader("X-User-Role") String role) {
+    public ResponseEntity<Map<String, Object>> getAverageRating(@RequestHeader("X-User-Role") String role) {
         validateRole(role, "SYSTEM_ADMIN", "SUPERVISORY_OFFICER");
         Double avgRating = feedbackService.getAverageRating();
-        return ResponseEntity.ok(avgRating);
+        
+        Map<String, Object> result = Map.of(
+                "success", true,
+                "averageRating", avgRating
+        );
+        
+        return ResponseEntity.ok(result);
     }
 
     private void validateRole(String userRole, String... allowedRoles) {

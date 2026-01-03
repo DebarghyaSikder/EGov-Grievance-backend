@@ -8,12 +8,14 @@ import com.grievance.grievance_service.service.FileStorageService;
 import com.grievance.grievance_service.service.GrievanceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/grievances")
@@ -25,14 +27,13 @@ public class AttachmentController {
     private final FileStorageService fileStorageService;
 
     @PostMapping("/{grievanceId}/attachments")
-    public ResponseEntity<AttachmentResponse> uploadAttachment(
+    public ResponseEntity<Map<String, Object>> uploadAttachment(
             @PathVariable Long grievanceId,
             @RequestParam("file") MultipartFile file,
             @RequestHeader("X-User-Id") Long userId
     ) {
         Grievance grievance = grievanceService.getGrievanceById(grievanceId);
 
-        // Verify the user owns this grievance
         if (!grievance.getCitizenId().equals(userId)) {
             throw new RuntimeException("You can only upload attachments to your own grievances");
         }
@@ -49,7 +50,14 @@ public class AttachmentController {
 
         attachmentRepository.save(attachment);
 
-        return ResponseEntity.ok(mapToResponse(attachment));
+        Map<String, Object> result = Map.of(
+                "success", true,
+                "message", "Attachment uploaded successfully",
+                "attachmentId", attachment.getId(),
+                "fileName", attachment.getFileName()
+        );
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
     @GetMapping("/{grievanceId}/attachments")
@@ -61,10 +69,17 @@ public class AttachmentController {
         return ResponseEntity.ok(responses);
     }
 
-    @GetMapping("/attachments/{attachmentId}/download")
-    public ResponseEntity<byte[]> downloadAttachment(@PathVariable Long attachmentId) {
+    @GetMapping("/{grievanceId}/attachments/{attachmentId}/download")
+    public ResponseEntity<byte[]> downloadAttachment(
+            @PathVariable Long grievanceId,
+            @PathVariable Long attachmentId
+    ) {
         GrievanceAttachment attachment = attachmentRepository.findById(attachmentId)
                 .orElseThrow(() -> new RuntimeException("Attachment not found"));
+
+        if (!attachment.getGrievance().getId().equals(grievanceId)) {
+            throw new RuntimeException("Attachment does not belong to this grievance");
+        }
 
         byte[] fileContent = fileStorageService.loadFile(attachment.getFilePath());
 
@@ -74,15 +89,19 @@ public class AttachmentController {
                 .body(fileContent);
     }
 
-    @DeleteMapping("/attachments/{attachmentId}")
-    public ResponseEntity<String> deleteAttachment(
+    @DeleteMapping("/{grievanceId}/attachments/{attachmentId}")
+    public ResponseEntity<Void> deleteAttachment(
+            @PathVariable Long grievanceId,
             @PathVariable Long attachmentId,
             @RequestHeader("X-User-Id") Long userId
     ) {
         GrievanceAttachment attachment = attachmentRepository.findById(attachmentId)
                 .orElseThrow(() -> new RuntimeException("Attachment not found"));
 
-        // Verify the user owns this grievance
+        if (!attachment.getGrievance().getId().equals(grievanceId)) {
+            throw new RuntimeException("Attachment does not belong to this grievance");
+        }
+
         if (!attachment.getGrievance().getCitizenId().equals(userId)) {
             throw new RuntimeException("You can only delete attachments from your own grievances");
         }
@@ -90,7 +109,7 @@ public class AttachmentController {
         fileStorageService.deleteFile(attachment.getFilePath());
         attachmentRepository.delete(attachment);
 
-        return ResponseEntity.ok("Attachment deleted successfully");
+        return ResponseEntity.noContent().build();
     }
 
     private AttachmentResponse mapToResponse(GrievanceAttachment attachment) {

@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +29,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
         AuthResponse response = authService.register(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/login")
@@ -51,7 +52,6 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    // Internal endpoint - only for service-to-service calls
     @GetMapping("/internal/user/{userId}")
     public ResponseEntity<Map<String, Object>> getUserByIdInternal(@PathVariable Long userId) {
         User user = userRepository.findById(userId)

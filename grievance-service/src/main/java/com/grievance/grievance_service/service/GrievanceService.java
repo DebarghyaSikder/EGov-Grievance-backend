@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface GrievanceService {
 
-    GrievanceResponse createGrievance(CreateGrievanceRequest request, Long citizenId);
+    GrievanceCreatedResponse createGrievance(CreateGrievanceRequest request, Long citizenId);
 
     Grievance getGrievanceById(Long id);
 

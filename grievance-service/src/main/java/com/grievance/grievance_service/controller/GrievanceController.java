@@ -5,6 +5,7 @@ import com.grievance.grievance_service.entity.Grievance;
 import com.grievance.grievance_service.service.GrievanceService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,63 +20,69 @@ public class GrievanceController {
     private final GrievanceService grievanceService;
 
     @PostMapping
-    public ResponseEntity<GrievanceResponse> createGrievance(
+    public ResponseEntity<ApiResponse<GrievanceCreatedResponse>> createGrievance(
             @Valid @RequestBody CreateGrievanceRequest request,
             @RequestHeader("X-User-Id") Long citizenId
     ) {
-        GrievanceResponse response = grievanceService.createGrievance(request, citizenId);
-        return ResponseEntity.ok(response);
+        GrievanceCreatedResponse response = grievanceService.createGrievance(request, citizenId);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(ApiResponse.success("Grievance created successfully", response));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<GrievanceResponse> getGrievanceById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<GrievanceResponse>> getGrievanceById(@PathVariable Long id) {
         Grievance grievance = grievanceService.getGrievanceById(id);
-        return ResponseEntity.ok(mapToResponse(grievance));
+        return ResponseEntity.ok(ApiResponse.success("Grievance retrieved successfully", mapToResponse(grievance)));
     }
 
     @GetMapping("/tracking/{grievanceNumber}")
-    public ResponseEntity<GrievanceResponse> getByGrievanceNumber(@PathVariable String grievanceNumber) {
+    public ResponseEntity<ApiResponse<GrievanceResponse>> getByGrievanceNumber(@PathVariable String grievanceNumber) {
         Grievance grievance = grievanceService.getByGrievanceNumber(grievanceNumber);
-        return ResponseEntity.ok(mapToResponse(grievance));
+        return ResponseEntity.ok(ApiResponse.success("Grievance retrieved successfully", mapToResponse(grievance)));
     }
 
     @GetMapping("/my")
-    public ResponseEntity<List<GrievanceResponse>> getMyGrievances(@RequestHeader("X-User-Id") Long citizenId) {
+    public ResponseEntity<ApiResponse<List<GrievanceResponse>>> getMyGrievances(@RequestHeader("X-User-Id") Long citizenId) {
         List<Grievance> grievances = grievanceService.getGrievancesByCitizenId(citizenId);
-        return ResponseEntity.ok(grievances.stream().map(this::mapToResponse).toList());
+        List<GrievanceResponse> responses = grievances.stream().map(this::mapToResponse).toList();
+        return ResponseEntity.ok(ApiResponse.success("Grievances retrieved successfully", responses));
     }
 
     @GetMapping("/department/{department}")
-    public ResponseEntity<List<GrievanceResponse>> getByDepartment(
+    public ResponseEntity<ApiResponse<List<GrievanceResponse>>> getByDepartment(
             @PathVariable String department,
             @RequestHeader("X-User-Role") String role
     ) {
         validateRole(role, "SYSTEM_ADMIN", "SUPERVISORY_OFFICER", "DEPARTMENT_OFFICER");
         List<Grievance> grievances = grievanceService.getGrievancesByDepartment(department);
-        return ResponseEntity.ok(grievances.stream().map(this::mapToResponse).toList());
+        List<GrievanceResponse> responses = grievances.stream().map(this::mapToResponse).toList();
+        return ResponseEntity.ok(ApiResponse.success("Grievances retrieved successfully", responses));
     }
 
     @GetMapping("/officer/assigned")
-    public ResponseEntity<List<GrievanceResponse>> getAssignedGrievances(
+    public ResponseEntity<ApiResponse<List<GrievanceResponse>>> getAssignedGrievances(
             @RequestHeader("X-User-Id") Long officerId,
             @RequestHeader("X-User-Role") String role
     ) {
         validateRole(role, "DEPARTMENT_OFFICER");
         List<Grievance> grievances = grievanceService.getGrievancesByOfficerId(officerId);
-        return ResponseEntity.ok(grievances.stream().map(this::mapToResponse).toList());
+        List<GrievanceResponse> responses = grievances.stream().map(this::mapToResponse).toList();
+        return ResponseEntity.ok(ApiResponse.success("Assigned grievances retrieved successfully", responses));
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<GrievanceResponse>> getAllGrievances(
+    public ResponseEntity<ApiResponse<List<GrievanceResponse>>> getAllGrievances(
             @RequestHeader("X-User-Role") String role
     ) {
         validateRole(role, "SYSTEM_ADMIN", "SUPERVISORY_OFFICER");
         List<Grievance> grievances = grievanceService.getAllGrievances();
-        return ResponseEntity.ok(grievances.stream().map(this::mapToResponse).toList());
+        List<GrievanceResponse> responses = grievances.stream().map(this::mapToResponse).toList();
+        return ResponseEntity.ok(ApiResponse.success("All grievances retrieved successfully", responses));
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<GrievanceResponse> updateStatus(
+    public ResponseEntity<ApiResponse<Map<String, Object>>> updateStatus(
             @PathVariable Long id,
             @Valid @RequestBody UpdateStatusRequest request,
             @RequestHeader("X-User-Id") Long officerId,
@@ -83,32 +90,48 @@ public class GrievanceController {
     ) {
         validateRole(role, "DEPARTMENT_OFFICER", "SYSTEM_ADMIN", "SUPERVISORY_OFFICER");
         Grievance grievance = grievanceService.updateStatus(id, request, officerId);
-        return ResponseEntity.ok(mapToResponse(grievance));
+        
+        Map<String, Object> data = Map.of(
+                "grievanceId", grievance.getId(),
+                "grievanceNumber", grievance.getGrievanceNumber(),
+                "newStatus", grievance.getStatus().name()
+        );
+        
+        return ResponseEntity.ok(ApiResponse.success("Status updated successfully", data));
     }
 
     @PutMapping("/{id}/assign")
-    public ResponseEntity<GrievanceResponse> assignOfficer(
+    public ResponseEntity<ApiResponse<Map<String, Object>>> assignOfficer(
             @PathVariable Long id,
             @Valid @RequestBody AssignOfficerRequest request,
             @RequestHeader("X-User-Role") String role
     ) {
         validateRole(role, "SYSTEM_ADMIN", "SUPERVISORY_OFFICER");
         Grievance grievance = grievanceService.assignOfficer(id, request);
-        return ResponseEntity.ok(mapToResponse(grievance));
+        
+        Map<String, Object> data = Map.of(
+                "grievanceId", grievance.getId(),
+                "grievanceNumber", grievance.getGrievanceNumber(),
+                "assignedOfficerId", grievance.getAssignedOfficerId(),
+                "status", grievance.getStatus().name()
+        );
+        
+        return ResponseEntity.ok(ApiResponse.success("Officer assigned successfully", data));
     }
 
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<GrievanceResponse>> getByStatus(
+    public ResponseEntity<ApiResponse<List<GrievanceResponse>>> getByStatus(
             @PathVariable String status,
             @RequestHeader("X-User-Role") String role
     ) {
         validateRole(role, "SYSTEM_ADMIN", "SUPERVISORY_OFFICER", "DEPARTMENT_OFFICER");
         List<Grievance> grievances = grievanceService.getGrievancesByStatus(status);
-        return ResponseEntity.ok(grievances.stream().map(this::mapToResponse).toList());
+        List<GrievanceResponse> responses = grievances.stream().map(this::mapToResponse).toList();
+        return ResponseEntity.ok(ApiResponse.success("Grievances retrieved successfully", responses));
     }
-    
+
     @PutMapping("/{id}/escalate")
-    public ResponseEntity<GrievanceResponse> escalateGrievance(
+    public ResponseEntity<ApiResponse<Map<String, Object>>> escalateGrievance(
             @PathVariable Long id,
             @RequestBody Map<String, String> request,
             @RequestHeader("X-User-Role") String role
@@ -116,18 +139,33 @@ public class GrievanceController {
         validateRole(role, "SUPERVISORY_OFFICER", "SYSTEM_ADMIN");
         String reason = request.get("reason");
         Grievance grievance = grievanceService.escalateGrievance(id, reason);
-        return ResponseEntity.ok(mapToResponse(grievance));
+        
+        Map<String, Object> data = Map.of(
+                "grievanceId", grievance.getId(),
+                "grievanceNumber", grievance.getGrievanceNumber(),
+                "status", grievance.getStatus().name()
+        );
+        
+        return ResponseEntity.ok(ApiResponse.success("Grievance escalated successfully", data));
     }
 
     @PutMapping("/{id}/reassign")
-    public ResponseEntity<GrievanceResponse> reassignGrievance(
+    public ResponseEntity<ApiResponse<Map<String, Object>>> reassignGrievance(
             @PathVariable Long id,
             @Valid @RequestBody AssignOfficerRequest request,
             @RequestHeader("X-User-Role") String role
     ) {
         validateRole(role, "SUPERVISORY_OFFICER", "SYSTEM_ADMIN");
         Grievance grievance = grievanceService.reassignOfficer(id, request);
-        return ResponseEntity.ok(mapToResponse(grievance));
+        
+        Map<String, Object> data = Map.of(
+                "grievanceId", grievance.getId(),
+                "grievanceNumber", grievance.getGrievanceNumber(),
+                "newOfficerId", grievance.getAssignedOfficerId(),
+                "status", grievance.getStatus().name()
+        );
+        
+        return ResponseEntity.ok(ApiResponse.success("Grievance reassigned successfully", data));
     }
 
     private void validateRole(String userRole, String... allowedRoles) {

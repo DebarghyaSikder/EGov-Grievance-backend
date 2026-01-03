@@ -11,12 +11,11 @@ import java.util.Optional;
 @Repository
 public interface OfficerDepartmentRepository extends JpaRepository<OfficerDepartment, Long> {
 
-    List<OfficerDepartment> findByDepartmentIdAndIsActiveTrue(Long departmentId);
-
-    Optional<OfficerDepartment> findByOfficerIdAndDepartmentId(Long officerId, Long departmentId);
-
     @Query("SELECT od FROM OfficerDepartment od WHERE od.departmentId = :departmentId AND od.isActive = true ORDER BY od.currentLoad ASC")
     List<OfficerDepartment> findByDepartmentIdOrderByLoadAsc(Long departmentId);
 
+    // One officer belongs to only one department, so this returns single result
     Optional<OfficerDepartment> findByOfficerId(Long officerId);
+
+    List<OfficerDepartment> findByDepartmentIdAndIsActiveTrue(Long departmentId);
 }

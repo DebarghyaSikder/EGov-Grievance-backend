@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -49,11 +50,37 @@ public class AutoAssignmentService {
 
     @Transactional
     public void decrementOfficerLoad(Long officerId) {
-        OfficerDepartment officer = officerDepartmentRepository.findByOfficerId(officerId).orElse(null);
+        if (officerId == null) {
+            return;
+        }
 
-        if (officer != null && officer.getCurrentLoad() > 0) {
-            officer.setCurrentLoad(officer.getCurrentLoad() - 1);
+        Optional<OfficerDepartment> officerOpt = officerDepartmentRepository.findByOfficerId(officerId);
+
+        if (officerOpt.isPresent()) {
+            OfficerDepartment officer = officerOpt.get();
+            if (officer.getCurrentLoad() > 0) {
+                officer.setCurrentLoad(officer.getCurrentLoad() - 1);
+                officerDepartmentRepository.save(officer);
+                log.info("Decremented load for officer {} (new load: {})",
+                        officerId, officer.getCurrentLoad());
+            }
+        }
+    }
+
+    @Transactional
+    public void incrementOfficerLoad(Long officerId) {
+        if (officerId == null) {
+            return;
+        }
+
+        Optional<OfficerDepartment> officerOpt = officerDepartmentRepository.findByOfficerId(officerId);
+
+        if (officerOpt.isPresent()) {
+            OfficerDepartment officer = officerOpt.get();
+            officer.setCurrentLoad(officer.getCurrentLoad() + 1);
             officerDepartmentRepository.save(officer);
+            log.info("Incremented load for officer {} (new load: {})",
+                    officerId, officer.getCurrentLoad());
         }
     }
 }
