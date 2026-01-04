@@ -2,6 +2,7 @@ package com.grievance.api_gateway.filter;
 
 import com.grievance.api_gateway.config.RouteValidator;
 import com.grievance.api_gateway.util.JwtUtils;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -23,19 +24,28 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
     private final RouteValidator routeValidator;
     private final JwtUtils jwtUtils;
 
+    @PostConstruct
+    public void init() {
+        log.info(">>>>>>>>>> JwtAuthFilter INITIALIZED <<<<<<<<<<");
+    }
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
-        String path = request.getURI().getPath();
+        String rawPath = request.getURI().getPath();
+        String path = rawPath.replaceAll("/+$", "");
         String method = request.getMethod().name();
 
+        log.info(">>>>>>>>>> JWT FILTER INVOKED <<<<<<<<<<");
         log.info("Incoming request: {} {}", method, path);
 
-        // Allow public endpoints
+        // Allow public endpoints FIRST
         if (routeValidator.isPublicEndpoint(path)) {
-            log.info("Public endpoint - allowing access");
+            log.info("PUBLIC ENDPOINT - Allowing access: {}", path);
             return chain.filter(exchange);
         }
+
+        log.info("Protected endpoint - checking authentication");
 
         // Check for Authorization header
         if (!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
@@ -52,20 +62,17 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
         String token = authHeader.substring(7);
 
         try {
-            // Validate token
             if (!jwtUtils.isTokenValid(token)) {
                 log.warn("Token is invalid or expired");
                 return onError(exchange, "Invalid or expired token", HttpStatus.UNAUTHORIZED);
             }
 
-            // Extract user details from token
             Long userId = jwtUtils.extractUserId(token);
             String role = jwtUtils.extractRole(token);
             String email = jwtUtils.extractEmail(token);
 
             log.info("User authenticated: userId={}, role={}, email={}", userId, role, email);
 
-            // Check role-based access
             if (!routeValidator.hasAccess(role, method, path)) {
                 log.warn("Access denied for role {} to {} {}", role, method, path);
                 return onError(exchange, "Access denied. Insufficient permissions.", HttpStatus.FORBIDDEN);
@@ -73,7 +80,6 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
 
             log.info("Access granted for role {} to {} {}", role, method, path);
 
-            // Add user info to headers for downstream services
             ServerHttpRequest modifiedRequest = request.mutate()
                     .header("X-User-Id", String.valueOf(userId))
                     .header("X-User-Role", role)
@@ -103,6 +109,6 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return -1;
+        return -100;
     }
 }

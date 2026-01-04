@@ -61,14 +61,19 @@ class FeedbackServiceTest {
 
         assertNotNull(response);
         assertEquals(5, response.getRating());
+        assertEquals("Feedback submitted successfully", response.getMessage());
         verify(feedbackRepository, times(1)).save(any(Feedback.class));
     }
 
     @Test
-    void submitFeedback_DuplicateFeedback_ThrowsException() {
+    void submitFeedback_DuplicateFeedback_ReturnsErrorMessage() {
         when(feedbackRepository.existsByGrievanceId(1L)).thenReturn(true);
 
-        assertThrows(RuntimeException.class, () -> feedbackService.submitFeedback(createRequest, 1L));
+        FeedbackResponse response = feedbackService.submitFeedback(createRequest, 1L);
+
+        assertNotNull(response);
+        assertEquals("Feedback already submitted for this grievance", response.getMessage());
+        assertNull(response.getId());
         verify(feedbackRepository, never()).save(any(Feedback.class));
     }
 
@@ -80,6 +85,14 @@ class FeedbackServiceTest {
 
         assertNotNull(response);
         assertEquals(1L, response.getGrievanceId());
+    }
+
+    @Test
+    void getFeedbackByGrievanceId_NotFound_ThrowsException() {
+        when(feedbackRepository.findByGrievanceId(99L)).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class, 
+                () -> feedbackService.getFeedbackByGrievanceId(99L));
     }
 
     @Test
@@ -100,5 +113,15 @@ class FeedbackServiceTest {
 
         assertNotNull(avgRating);
         assertEquals(4.5, avgRating);
+    }
+
+    @Test
+    void getAverageRating_NoFeedbacks_ReturnsZero() {
+        when(feedbackRepository.findAverageRating()).thenReturn(null);
+
+        Double avgRating = feedbackService.getAverageRating();
+
+        assertNotNull(avgRating);
+        assertEquals(0.0, avgRating);
     }
 }

@@ -50,12 +50,6 @@
     <artifactId>spring-cloud-starter-gateway</artifactId>
 </dependency>
 
-<!-- Spring Security (Reactive) -->
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-security</artifactId>
-</dependency>
-
         <!-- Eureka Client -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
@@ -86,12 +80,6 @@
     <version>0.11.5</version>
     <scope>runtime</scope>
 </dependency>
-        <!-- Spring Security (Reactive) -->
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-security</artifactId>
-</dependency>
-
         <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>

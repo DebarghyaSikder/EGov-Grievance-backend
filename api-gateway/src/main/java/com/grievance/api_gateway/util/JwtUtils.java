@@ -3,6 +3,7 @@ package com.grievance.api_gateway.util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -10,6 +11,7 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
+@Slf4j
 @Component
 public class JwtUtils {
 
@@ -18,8 +20,23 @@ public class JwtUtils {
 
     public Long extractUserId(String token) {
         Claims claims = extractAllClaims(token);
-        String userIdStr = claims.get("userId", String.class);
-        return userIdStr != null ? Long.parseLong(userIdStr) : null;
+        Object userIdObj = claims.get("userId");
+        
+        if (userIdObj == null) {
+            log.warn("userId not found in token");
+            return null;
+        }
+        
+        if (userIdObj instanceof Integer) {
+            return ((Integer) userIdObj).longValue();
+        } else if (userIdObj instanceof Long) {
+            return (Long) userIdObj;
+        } else if (userIdObj instanceof String) {
+            return Long.parseLong((String) userIdObj);
+        } else {
+            log.warn("Unknown userId type: {}", userIdObj.getClass().getName());
+            return null;
+        }
     }
 
     public String extractRole(String token) {
@@ -37,6 +54,7 @@ public class JwtUtils {
             Claims claims = extractAllClaims(token);
             return !isTokenExpired(claims);
         } catch (Exception e) {
+            log.error("Token validation error: {}", e.getMessage());
             return false;
         }
     }
