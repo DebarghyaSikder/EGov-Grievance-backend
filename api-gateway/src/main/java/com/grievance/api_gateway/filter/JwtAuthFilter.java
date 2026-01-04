@@ -39,7 +39,13 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
         log.info(">>>>>>>>>> JWT FILTER INVOKED <<<<<<<<<<");
         log.info("Incoming request: {} {}", method, path);
 
-        // Allow public endpoints FIRST
+        // Allow CORS preflight OPTIONS requests FIRST
+        if (routeValidator.isPreflightRequest(request.getMethod())) {
+            log.info("CORS PREFLIGHT REQUEST - Allowing through: {} {}", method, path);
+            return chain.filter(exchange);
+        }
+
+        // Allow public endpoints
         if (routeValidator.isPublicEndpoint(path)) {
             log.info("PUBLIC ENDPOINT - Allowing access: {}", path);
             return chain.filter(exchange);

@@ -1,6 +1,7 @@
 package com.grievance.api_gateway.config;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -86,6 +87,17 @@ public class RouteValidator {
             /* ======================= COMMON ======================= */
             new EndpointRole("GET", "/api/v1/grievances/\\d+", List.of("CITIZEN", "DEPARTMENT_OFFICER", "SUPERVISORY_OFFICER", "SYSTEM_ADMIN"))
     );
+
+    /**
+     * Check if request is a CORS preflight OPTIONS request
+     */
+    public boolean isPreflightRequest(HttpMethod method) {
+        boolean result = method == HttpMethod.OPTIONS;
+        if (result) {
+            log.info("CORS preflight OPTIONS request detected - allowing through");
+        }
+        return result;
+    }
 
     /**
      * Check if endpoint is PUBLIC
