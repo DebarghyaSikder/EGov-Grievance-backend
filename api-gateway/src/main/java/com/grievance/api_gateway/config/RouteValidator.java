@@ -65,6 +65,17 @@ public class RouteValidator {
             /* ======================= ADMIN ======================= */
             new EndpointRole("POST", "/api/v1/grievances/admin/trigger-escalation", List.of("SYSTEM_ADMIN")),
 
+            /* ======================= REPORTS ======================= */
+            new EndpointRole("GET", "/api/v1/reports/grievances-by-status", List.of("SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
+            new EndpointRole("GET", "/api/v1/reports/grievances-by-department", List.of("SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
+            new EndpointRole("GET", "/api/v1/reports/grievances-by-category", List.of("SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
+            new EndpointRole("GET", "/api/v1/reports/pending-vs-resolved", List.of("SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
+            new EndpointRole("GET", "/api/v1/reports/average-resolution-time", List.of("SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
+            new EndpointRole("GET", "/api/v1/reports/department-performance", List.of("SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
+            new EndpointRole("GET", "/api/v1/reports/monthly-trends", List.of("SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
+            new EndpointRole("GET", "/api/v1/reports/officer-workload", List.of("SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
+            new EndpointRole("GET", "/api/v1/reports/dashboard-summary", List.of("DEPARTMENT_OFFICER", "SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
+            
             /* ======================= COMMON ======================= */
             new EndpointRole("GET", "/api/v1/grievances/\\d+", List.of("CITIZEN", "DEPARTMENT_OFFICER", "SUPERVISORY_OFFICER", "SYSTEM_ADMIN"))
     );
