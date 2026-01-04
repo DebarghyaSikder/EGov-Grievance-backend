@@ -76,6 +76,13 @@ public class RouteValidator {
             new EndpointRole("GET", "/api/v1/reports/officer-workload", List.of("SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
             new EndpointRole("GET", "/api/v1/reports/dashboard-summary", List.of("DEPARTMENT_OFFICER", "SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
             
+            /* ======================= PAGINATED ENDPOINTS ======================= */
+            new EndpointRole("GET", "/api/v1/grievances/my/paged", List.of("CITIZEN", "SYSTEM_ADMIN")),
+            new EndpointRole("GET", "/api/v1/grievances/officer/assigned/paged", List.of("DEPARTMENT_OFFICER", "SYSTEM_ADMIN")),
+            new EndpointRole("GET", "/api/v1/grievances/all/paged", List.of("SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
+            new EndpointRole("GET", "/api/v1/grievances/status/.+/paged", List.of("DEPARTMENT_OFFICER", "SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
+            new EndpointRole("GET", "/api/v1/grievances/department/.+/paged", List.of("DEPARTMENT_OFFICER", "SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
+            
             /* ======================= COMMON ======================= */
             new EndpointRole("GET", "/api/v1/grievances/\\d+", List.of("CITIZEN", "DEPARTMENT_OFFICER", "SUPERVISORY_OFFICER", "SYSTEM_ADMIN"))
     );

@@ -12,6 +12,9 @@ import com.grievance.grievance_service.service.GrievanceEventPublisher;
 import com.grievance.grievance_service.service.GrievanceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -122,6 +125,32 @@ public class GrievanceServiceImpl implements GrievanceService {
         return grievanceRepository.findAll();
     }
 
+    @Override
+    public Page<Grievance> getAllGrievances(Pageable pageable) {
+        return grievanceRepository.findAll(pageable);
+    }
+
+    @Override
+    public Page<Grievance> getGrievancesByCitizenId(Long citizenId, Pageable pageable) {
+        return grievanceRepository.findByCitizenId(citizenId, pageable);
+    }
+
+    @Override
+    public Page<Grievance> getGrievancesByOfficerId(Long officerId, Pageable pageable) {
+        return grievanceRepository.findByAssignedOfficerId(officerId, pageable);
+    }
+
+    @Override
+    public Page<Grievance> getGrievancesByDepartment(String department, Pageable pageable) {
+        return grievanceRepository.findByDepartmentName(department, pageable);
+    }
+
+    @Override
+    public Page<Grievance> getGrievancesByStatus(String status, Pageable pageable) {
+        Status statusEnum = Status.valueOf(status.toUpperCase());
+        return grievanceRepository.findByStatus(statusEnum, pageable);
+    }
+    
     @Override
     @Transactional
     public Grievance updateStatus(Long id, UpdateStatusRequest request, Long officerId) {
