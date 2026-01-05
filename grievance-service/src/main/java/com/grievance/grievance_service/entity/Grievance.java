@@ -1,5 +1,6 @@
 package com.grievance.grievance_service.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grievance.grievance_service.enums.Priority;
 import com.grievance.grievance_service.enums.Status;
 import jakarta.persistence.*;
@@ -23,17 +24,11 @@ public class Grievance {
     private String grievanceNumber;
 
     private Long citizenId;
-
     private Long departmentId;
-    
     private String departmentName;
-
     private Long categoryId;
-    
     private String categoryName;
-
     private Long subCategoryId;
-    
     private String subCategoryName;
 
     @Enumerated(EnumType.STRING)
@@ -49,20 +44,15 @@ public class Grievance {
     private Status status;
 
     private Long assignedOfficerId;
-
     private Integer slaHours;
-
     private LocalDateTime slaDeadline;
-
     private LocalDateTime createdAt;
-
     private LocalDateTime updatedAt;
-
     private LocalDateTime resolvedAt;
-
     private LocalDateTime assignedAt;
 
     @OneToMany(mappedBy = "grievance", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    @JsonIgnore  // Add this annotation to prevent serialization issues
     private List<GrievanceAttachment> attachments = new ArrayList<>();
 }

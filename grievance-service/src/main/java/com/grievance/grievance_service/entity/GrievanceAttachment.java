@@ -1,5 +1,6 @@
 package com.grievance.grievance_service.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,23 +18,19 @@ public class GrievanceAttachment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "grievance_id", nullable = false)
+    @JsonIgnore  // Add this to prevent circular reference
     private Grievance grievance;
 
-    @Column(nullable = false)
     private String fileName;
-
-    @Column(nullable = false)
     private String fileType;
-
-    @Column(nullable = false)
     private String filePath;
-
     private Long fileSize;
 
+    @Column(name = "uploaded_at")
     private LocalDateTime uploadedAt;
 
     @PrePersist
-    public void onCreate() {
+    protected void onCreate() {
         uploadedAt = LocalDateTime.now();
     }
 }
