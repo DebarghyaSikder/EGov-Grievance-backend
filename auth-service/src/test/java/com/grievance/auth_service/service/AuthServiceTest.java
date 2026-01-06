@@ -1,7 +1,6 @@
 package com.grievance.auth_service.service;
 
 import com.grievance.auth_service.dto.AuthResponse;
-import com.grievance.auth_service.dto.LoginRequest;
 import com.grievance.auth_service.dto.RegisterRequest;
 import com.grievance.auth_service.entity.User;
 import com.grievance.auth_service.entity.Role;
@@ -13,13 +12,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,9 +32,6 @@ class AuthServiceTest {
 
     @Mock
     private JwtService jwtService;
-
-    @Mock
-    private AuthenticationManager authenticationManager;
 
     @InjectMocks
     private AuthServiceImpl authService;
@@ -70,30 +66,38 @@ class AuthServiceTest {
         when(userRepository.existsByAadhaarNumber(anyString())).thenReturn(false);
         when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
         when(userRepository.save(any(User.class))).thenReturn(testUser);
-        when(jwtService.generateToken(any(User.class))).thenReturn("testToken");
 
         AuthResponse response = authService.register(registerRequest);
 
         assertNotNull(response);
-        assertEquals("testToken", response.getToken());
+        assertEquals("Registration successful", response.getMessage());
         assertEquals(1L, response.getUserId());
+        assertEquals("CITIZEN", response.getRole());
         verify(userRepository, times(1)).save(any(User.class));
     }
 
     @Test
-    void register_EmailAlreadyExists_ThrowsException() {
+    void register_EmailAlreadyExists_ReturnsError() {
         when(userRepository.existsByEmail(anyString())).thenReturn(true);
 
-        assertThrows(RuntimeException.class, () -> authService.register(registerRequest));
+        AuthResponse response = authService.register(registerRequest);
+
+        assertNotNull(response);
+        assertEquals("Email already exists", response.getMessage());
+        assertNull(response.getUserId());
         verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
-    void register_AadhaarAlreadyExists_ThrowsException() {
+    void register_AadhaarAlreadyExists_ReturnsError() {
         when(userRepository.existsByEmail(anyString())).thenReturn(false);
         when(userRepository.existsByAadhaarNumber(anyString())).thenReturn(true);
 
-        assertThrows(RuntimeException.class, () -> authService.register(registerRequest));
+        AuthResponse response = authService.register(registerRequest);
+
+        assertNotNull(response);
+        assertEquals("Aadhaar already exists", response.getMessage());
+        assertNull(response.getUserId());
         verify(userRepository, never()).save(any(User.class));
     }
 }

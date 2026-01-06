@@ -19,7 +19,6 @@
         <lombok.version>1.18.36</lombok.version>
     </properties>
 
-    <!-- Spring Boot & Spring Cloud Bill of Materials -->
     <dependencyManagement>
         <dependencies>
 

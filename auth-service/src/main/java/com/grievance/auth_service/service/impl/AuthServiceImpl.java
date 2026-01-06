@@ -46,13 +46,12 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
 
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
 
         return AuthResponse.builder()
                 .message("Registration successful")
-                .role(user.getRole().name())
-                .userId(user.getId())
-                .build();
+                .role(savedUser.getRole().name())
+                .userId(savedUser.getId()).build();
     }
 
     @Override
