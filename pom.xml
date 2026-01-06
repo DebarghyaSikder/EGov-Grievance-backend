@@ -18,16 +18,14 @@
         Built with Spring Boot 3.5.9, Spring Cloud 2024.0.0, MySQL, MongoDB, and Angular.
     </description>
     
-
     <modules>
-        <module>service-registry</module>      <!-- Port: 8761 | Eureka Server -->
-        <module>config-server</module>         <!-- Port: 8888 | Configuration -->
-        <module>api-gateway</module>           <!-- Port: 8080 | Gateway -->
-
-        <module>auth-service</module>          <!-- Port: 8081 | Authentication -->
-        <module>grievance-service</module>     <!-- Port: 8084 | Grievances -->
-        <module>feedback-service</module>      <!-- Port: 8086 | Feedback -->
-        <module>notification-service</module>  <!-- Port: 8087 | Notifications -->
+        <module>service-registry</module>
+        <module>config-server</module>
+        <module>api-gateway</module>
+        <module>auth-service</module>
+        <module>grievance-service</module>
+        <module>feedback-service</module>
+        <module>notification-service</module>
     </modules>
 
     <properties>
@@ -47,11 +45,20 @@
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
         
         <springdoc.version>2.8.0</springdoc.version>
+        
+        <!-- JaCoCo and SonarQube Properties -->
+        <jacoco.version>0.8.12</jacoco.version>
+        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+        <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+        <sonar.language>java</sonar.language>
+        <sonar.host.url>http://localhost:9000</sonar.host.url>
+        <sonar.projectKey>grievance-redressal-system</sonar.projectKey>
+        <sonar.projectName>Grievance Redressal System</sonar.projectName>
+        <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     </properties>
     
     <dependencyManagement>
         <dependencies>
-            
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
@@ -105,13 +112,10 @@
                 <artifactId>mapstruct-processor</artifactId>
                 <version>${mapstruct.version}</version>
             </dependency>
-            
         </dependencies>
     </dependencyManagement>
     
     <dependencies>
-        
-
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -124,13 +128,11 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        
     </dependencies>
 
     <build>
         <pluginManagement>
             <plugins>
-                
                 <plugin>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
@@ -151,6 +153,7 @@
                         </execution>
                     </executions>
                 </plugin>
+                
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
@@ -187,8 +190,47 @@
                     <version>3.2.5</version>
                 </plugin>
                 
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${jacoco.version}</version>
+                </plugin>
+                
+                <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>3.11.0.3922</version>
+                </plugin>
             </plugins>
         </pluginManagement>
+        
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>3.11.0.3922</version>
+            </plugin>
+        </plugins>
     </build>
-    
 </project>

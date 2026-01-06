@@ -1,8 +1,8 @@
 spring:
   application:
-    name: notification-service
+    name: grievance-service
   datasource:
-    url: jdbc:mysql://localhost:3306/notification_db_grievance?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/grievance_db_grievance?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: root
     password: Nike2004$
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -20,9 +20,6 @@ spring:
     port: 5672
     username: guest
     password: guest
-  mail:
-    host: localhost
-    port: 1025
 
 eureka:
   client:
