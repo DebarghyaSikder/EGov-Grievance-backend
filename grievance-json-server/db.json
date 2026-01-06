@@ -1,0 +1,362 @@
+{
+  "departments": [
+    {
+      "id": 1,
+      "name": "Public Works Department",
+      "description": "Handles public works and infrastructure"
+    },
+    {
+      "id": 2,
+      "name": "Water Supply Department",
+      "description": "Handles water supply related issues"
+    },
+    {
+      "id": 3,
+      "name": "Electricity Department",
+      "description": "Handles electricity and power related issues"
+    },
+    {
+      "id": 4,
+      "name": "Health Department",
+      "description": "Handles public health related issues"
+    },
+    {
+      "id": 5,
+      "name": "Education Department",
+      "description": "Handles education related issues"
+    },
+    {
+      "id": 6,
+      "name": "Revenue Department",
+      "description": "Handles revenue and tax related issues"
+    },
+    {
+      "id": 7,
+      "name": "Transport Department",
+      "description": "Handles public transport issues"
+    },
+    {
+      "id": 8,
+      "name": "Sanitation Department",
+      "description": "Handles sanitation and cleanliness issues"
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name": "Road Issues",
+      "departmentId": 1
+    },
+    {
+      "id": 2,
+      "name": "Street Lights",
+      "departmentId": 1
+    },
+    {
+      "id": 3,
+      "name": "Water Supply Issues",
+      "departmentId": 2
+    },
+    {
+      "id": 4,
+      "name": "Water Quality",
+      "departmentId": 2
+    },
+    {
+      "id": 5,
+      "name": "Power Supply Issues",
+      "departmentId": 3
+    },
+    {
+      "id": 6,
+      "name": "Billing Issues",
+      "departmentId": 3
+    },
+    {
+      "id": 7,
+      "name": "Hospital Services",
+      "departmentId": 4
+    },
+    {
+      "id": 8,
+      "name": "Health Hazards",
+      "departmentId": 4
+    },
+    {
+      "id": 9,
+      "name": "School Issues",
+      "departmentId": 5
+    },
+    {
+      "id": 10,
+      "name": "Scholarship Issues",
+      "departmentId": 5
+    },
+    {
+      "id": 11,
+      "name": "Tax Issues",
+      "departmentId": 6
+    },
+    {
+      "id": 12,
+      "name": "Property Registration",
+      "departmentId": 6
+    },
+    {
+      "id": 13,
+      "name": "Public Transport",
+      "departmentId": 7
+    },
+    {
+      "id": 14,
+      "name": "Traffic Issues",
+      "departmentId": 7
+    },
+    {
+      "id": 15,
+      "name": "Waste Management",
+      "departmentId": 8
+    },
+    {
+      "id": 16,
+      "name": "Drainage Issues",
+      "departmentId": 8
+    }
+  ],
+  "subcategories": [
+    {
+      "id": 1,
+      "name": "Potholes",
+      "categoryId": 1,
+      "slaHours": 72
+    },
+    {
+      "id": 2,
+      "name": "Road Damage",
+      "categoryId": 1,
+      "slaHours": 72
+    },
+    {
+      "id": 3,
+      "name": "Waterlogging",
+      "categoryId": 1,
+      "slaHours": 48
+    },
+    {
+      "id": 4,
+      "name": "Street Light Not Working",
+      "categoryId": 2,
+      "slaHours": 48
+    },
+    {
+      "id": 5,
+      "name": "New Street Light Request",
+      "categoryId": 2,
+      "slaHours": 72
+    },
+    {
+      "id": 6,
+      "name": "No Water Supply",
+      "categoryId": 3,
+      "slaHours": 24
+    },
+    {
+      "id": 7,
+      "name": "Low Pressure",
+      "categoryId": 3,
+      "slaHours": 48
+    },
+    {
+      "id": 8,
+      "name": "Leakage",
+      "categoryId": 3,
+      "slaHours": 24
+    },
+    {
+      "id": 9,
+      "name": "Contaminated Water",
+      "categoryId": 4,
+      "slaHours": 12
+    },
+    {
+      "id": 10,
+      "name": "Bad Taste/Odor",
+      "categoryId": 4,
+      "slaHours": 24
+    },
+    {
+      "id": 11,
+      "name": "Power Outage",
+      "categoryId": 5,
+      "slaHours": 12
+    },
+    {
+      "id": 12,
+      "name": "Voltage Fluctuation",
+      "categoryId": 5,
+      "slaHours": 24
+    },
+    {
+      "id": 13,
+      "name": "Faulty Meter",
+      "categoryId": 5,
+      "slaHours": 72
+    },
+    {
+      "id": 14,
+      "name": "Incorrect Bill",
+      "categoryId": 6,
+      "slaHours": 72
+    },
+    {
+      "id": 15,
+      "name": "Bill Not Received",
+      "categoryId": 6,
+      "slaHours": 48
+    },
+    {
+      "id": 16,
+      "name": "Poor Service",
+      "categoryId": 7,
+      "slaHours": 48
+    },
+    {
+      "id": 17,
+      "name": "Staff Behavior",
+      "categoryId": 7,
+      "slaHours": 48
+    },
+    {
+      "id": 18,
+      "name": "Mosquito Breeding",
+      "categoryId": 8,
+      "slaHours": 24
+    },
+    {
+      "id": 19,
+      "name": "Stray Animals",
+      "categoryId": 8,
+      "slaHours": 48
+    },
+    {
+      "id": 20,
+      "name": "Food Safety Violation",
+      "categoryId": 8,
+      "slaHours": 24
+    },
+    {
+      "id": 21,
+      "name": "Infrastructure Issues",
+      "categoryId": 9,
+      "slaHours": 72
+    },
+    {
+      "id": 22,
+      "name": "Teacher Related",
+      "categoryId": 9,
+      "slaHours": 72
+    },
+    {
+      "id": 23,
+      "name": "Scholarship Delay",
+      "categoryId": 10,
+      "slaHours": 72
+    },
+    {
+      "id": 24,
+      "name": "Application Issues",
+      "categoryId": 10,
+      "slaHours": 48
+    },
+    {
+      "id": 25,
+      "name": "Property Tax Issues",
+      "categoryId": 11,
+      "slaHours": 72
+    },
+    {
+      "id": 26,
+      "name": "Income Tax Query",
+      "categoryId": 11,
+      "slaHours": 72
+    },
+    {
+      "id": 27,
+      "name": "Registration Delay",
+      "categoryId": 12,
+      "slaHours": 72
+    },
+    {
+      "id": 28,
+      "name": "Document Issues",
+      "categoryId": 12,
+      "slaHours": 48
+    },
+    {
+      "id": 29,
+      "name": "Bus Service Issue",
+      "categoryId": 13,
+      "slaHours": 48
+    },
+    {
+      "id": 30,
+      "name": "Auto/Taxi Complaint",
+      "categoryId": 13,
+      "slaHours": 48
+    },
+    {
+      "id": 31,
+      "name": "Bus Stop Condition",
+      "categoryId": 13,
+      "slaHours": 72
+    },
+    {
+      "id": 32,
+      "name": "Traffic Signal Not Working",
+      "categoryId": 14,
+      "slaHours": 24
+    },
+    {
+      "id": 33,
+      "name": "Missing Road Signs",
+      "categoryId": 14,
+      "slaHours": 48
+    },
+    {
+      "id": 34,
+      "name": "Garbage Not Collected",
+      "categoryId": 15,
+      "slaHours": 24
+    },
+    {
+      "id": 35,
+      "name": "Overflowing Dustbin",
+      "categoryId": 15,
+      "slaHours": 12
+    },
+    {
+      "id": 36,
+      "name": "Illegal Dumping",
+      "categoryId": 15,
+      "slaHours": 48
+    },
+    {
+      "id": 37,
+      "name": "Blocked Drain",
+      "categoryId": 16,
+      "slaHours": 24
+    },
+    {
+      "id": 38,
+      "name": "Sewage Overflow",
+      "categoryId": 16,
+      "slaHours": 12
+    },
+    {
+      "id": 39,
+      "name": "Bad Odor",
+      "categoryId": 16,
+      "slaHours": 48
+    }
+  ]
+}
