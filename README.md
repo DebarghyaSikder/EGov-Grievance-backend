@@ -130,7 +130,7 @@ The proposed **E-Governance Grievance Redressal System** is a centralized platfo
   <tbody>
     <tr><td>POST</td><td>/api/auth/register</td><td>Permit all</td></tr>
     <tr><td>POST</td><td>/api/auth/citizen/register</td><td>Permit all</td></tr>
-    <tr><td>POST</td><td>/api/auth/case-worker/register</td><td>DEPARTMENT_OFFICER, ADMIN</td></tr>
+    <tr><td>POST</td><td>/api/auth/department-officer/register</td><td>DEPARTMENT_OFFICER, ADMIN, SUPERVISOR</td></tr>
     <tr><td>POST</td><td>/api/auth/admin/register</td><td>Permit all</td></tr>
     <tr><td>POST</td><td>/api/auth/login</td><td>Permit all</td></tr>
     <tr><td>GET</td><td>/api/auth/profile</td><td>Any authenticated user</td></tr>
