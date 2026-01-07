@@ -5,7 +5,7 @@ The proposed **E-Governance Grievance Redressal System** is a centralized platfo
 <p align="left">
   <img src="https://github.com/DebarghyaSikder/EGov-Grievance-backend/blob/main/Images/Eureka.png" />
   <img src="https://github.com/DebarghyaSikder/EGov-Grievance-backend/blob/main/Images/SonarQube.png" />
-  <img src="https://github.com/DebarghyaSikder/EGov-Grievance-backend/blob/main/Images/Design.png" />
+  <img src="https://github.com/DebarghyaSikder/EGov-Grievance-backend/blob/main/Images/HLDdiagram.png" />
   <img src="https://github.com/DebarghyaSikder/EGov-Grievance-backend/blob/main/Images/Citizen%20Dashboard.png" />
   <img src="https://github.com/DebarghyaSikder/EGov-Grievance-backend/blob/main/Images/Officer%20Dashboard.png" />
   <img src="https://github.com/DebarghyaSikder/EGov-Grievance-backend/blob/main/Images/Supervisor%20Dashboard.png" />
