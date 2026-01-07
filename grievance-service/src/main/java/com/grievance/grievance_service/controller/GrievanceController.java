@@ -65,8 +65,6 @@ public class GrievanceController {
         List<Grievance> grievances = grievanceService.getGrievancesByCitizenId(userId);
         return ResponseEntity.ok(ApiResponse.success(grievances));
     }
-
-    // Paginated version
     @GetMapping("/my/paged")
     public ResponseEntity<ApiResponse<PageResponse<Grievance>>> getMyGrievancesPaged(
             @RequestHeader("X-User-Id") Long userId,

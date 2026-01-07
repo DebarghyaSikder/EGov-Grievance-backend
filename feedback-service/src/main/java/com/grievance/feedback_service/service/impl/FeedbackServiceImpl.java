@@ -24,7 +24,7 @@ public class FeedbackServiceImpl implements FeedbackService {
                     .build();
         }
 
-        Feedback feedback = Feedback.builder()
+    Feedback feedback = Feedback.builder()
                 .grievanceId(request.getGrievanceId())
                 .citizenId(citizenId)
                 .rating(request.getRating())
@@ -33,8 +33,7 @@ public class FeedbackServiceImpl implements FeedbackService {
                 .reopenReason(request.getReopenReason())
                 .build();
 
-        feedbackRepository.save(feedback);
-
+     feedbackRepository.save(feedback);
         return mapToResponse(feedback, "Feedback submitted successfully");
     }
 

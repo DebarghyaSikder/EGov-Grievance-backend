@@ -335,7 +335,6 @@ public class GrievanceServiceImpl implements GrievanceService {
             return null;
         }
     }
-
     private GrievanceResponse mapToResponse(Grievance grievance, String message) {
         return GrievanceResponse.builder()
                 .grievanceId(grievance.getId())

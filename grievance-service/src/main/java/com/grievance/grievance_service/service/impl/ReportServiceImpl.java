@@ -32,7 +32,6 @@ public class ReportServiceImpl implements ReportService {
                         Collectors.counting()
                 ));
     }
-
     @Override
     public Map<String, Long> getGrievanceCountByDepartment() {
         List<Grievance> grievances = grievanceRepository.findAll();
@@ -80,7 +79,6 @@ public class ReportServiceImpl implements ReportService {
 
         return result;
     }
-
     @Override
     public Map<String, Object> getAverageResolutionTime() {
         List<Grievance> resolvedGrievances = grievanceRepository.findAll().stream()
@@ -112,7 +110,6 @@ public class ReportServiceImpl implements ReportService {
 
         return result;
     }
-
     @Override
     public Map<String, Map<String, Object>> getDepartmentPerformance() {
         List<Grievance> grievances = grievanceRepository.findAll();
@@ -261,8 +258,7 @@ public class ReportServiceImpl implements ReportService {
         long slaBreached = grievances.stream()
                 .filter(g -> g.getStatus() == Status.ESCALATED ||
                         (g.getSlaDeadline() != null && g.getSlaDeadline().isBefore(LocalDateTime.now()) &&
-                                g.getStatus() != Status.RESOLVED && g.getStatus() != Status.CLOSED))
-                .count();
+                                g.getStatus() != Status.RESOLVED && g.getStatus() != Status.CLOSED)).count();
         summary.put("slaBreachedCount", slaBreached);
 
         return summary;

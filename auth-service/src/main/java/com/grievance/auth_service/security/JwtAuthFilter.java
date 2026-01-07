@@ -30,7 +30,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                path.equals("/api/v1/auth/register") ||
                path.startsWith("/api/v1/auth/internal/");
     }
-
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -53,12 +52,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
 
                 if (jwtService.isTokenValid(token, email)) {
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                                     userDetails,
                                     null,
-                                    userDetails.getAuthorities()
-                            );
+                                    userDetails.getAuthorities());
 
                     authToken.setDetails(
                             new WebAuthenticationDetailsSource().buildDetails(request)

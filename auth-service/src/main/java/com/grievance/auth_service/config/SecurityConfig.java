@@ -27,19 +27,13 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                         "/api/v1/auth/register",
-                        "/api/v1/auth/login"
-                ).permitAll()
+                        "/api/v1/auth/login").permitAll()
                 .requestMatchers("/api/v1/auth/internal/**").permitAll()
                 .requestMatchers("/api/v1/auth/me").authenticated()
-                .anyRequest().authenticated()
-            )
-            .exceptionHandling(ex -> ex
-                .authenticationEntryPoint(jwtAuthEntryPoint)
-            )
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            );
-
+                .anyRequest().authenticated()).exceptionHandling(ex -> ex
+                .authenticationEntryPoint(jwtAuthEntryPoint))
+                .sessionManagement(session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

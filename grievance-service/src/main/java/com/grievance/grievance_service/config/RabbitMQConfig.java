@@ -16,7 +16,6 @@ public class RabbitMQConfig {
     public static final String QUEUE_STATUS_CHANGED = "grievance.status.changed.queue";
     public static final String ROUTING_KEY_CREATED = "grievance.created";
     public static final String ROUTING_KEY_STATUS_CHANGED = "grievance.status.changed";
-
     @Bean
     public TopicExchange exchange() {
         return new TopicExchange(EXCHANGE_NAME);

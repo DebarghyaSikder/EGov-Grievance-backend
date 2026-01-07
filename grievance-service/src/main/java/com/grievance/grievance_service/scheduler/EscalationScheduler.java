@@ -28,13 +28,10 @@ public class EscalationScheduler {
     private final GrievanceHistoryRepository historyRepository;
     private final GrievanceEventPublisher eventPublisher;
     private final AuthServiceClient authServiceClient;
-
-    // Run every 5 minutes for testing (change to 3600000 for production - every hour)
     @Scheduled(fixedRate = 300000)
     @Transactional
     public void checkAndEscalateGrievances() {
-        log.info("========== AUTO-ESCALATION CHECK STARTED ==========");
-
+        log.info("-------------AUTO-ESCALATION CHECK STARTED ----------------");
         LocalDateTime now = LocalDateTime.now();
 
         List<Status> statusesToCheck = Arrays.asList(Status.ASSIGNED, Status.IN_PROGRESS);
@@ -52,17 +49,14 @@ public class EscalationScheduler {
             }
         }
 
-        log.info("========== AUTO-ESCALATION CHECK COMPLETED ==========");
+        log.info("-------------AUTO-ESCALATION CHECK COMPLETED--------------");
     }
 
     private void escalateGrievance(Grievance grievance) {
         Status oldStatus = grievance.getStatus();
-
         grievance.setStatus(Status.ESCALATED);
         grievance.setUpdatedAt(LocalDateTime.now());
-
         grievanceRepository.save(grievance);
-
         GrievanceHistory history = GrievanceHistory.builder()
                 .grievanceId(grievance.getId())
                 .oldStatus(oldStatus)
@@ -86,7 +80,6 @@ public class EscalationScheduler {
     private void publishEscalationEvent(Grievance grievance, Status oldStatus) {
         try {
             String citizenEmail = getCitizenEmail(grievance.getCitizenId());
-
             GrievanceEvent event = GrievanceEvent.builder()
                     .grievanceId(grievance.getId())
                     .grievanceNumber(grievance.getGrievanceNumber())
@@ -99,7 +92,6 @@ public class EscalationScheduler {
                     .newStatus(Status.ESCALATED.name())
                     .remarks("AUTO-ESCALATED: SLA breach - No resolution within deadline")
                     .build();
-
             eventPublisher.publishStatusChanged(event);
         } catch (Exception e) {
             log.error("Failed to publish escalation event: {}", e.getMessage());

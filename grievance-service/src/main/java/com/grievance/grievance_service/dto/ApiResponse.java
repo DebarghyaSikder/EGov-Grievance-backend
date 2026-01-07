@@ -19,8 +19,6 @@ public class ApiResponse<T> {
     private String message;
     private T data;
     private LocalDateTime timestamp;
-
-    // Success with message and data
     public static <T> ApiResponse<T> success(String message, T data) {
         return ApiResponse.<T>builder()
                 .success(true)
@@ -29,8 +27,6 @@ public class ApiResponse<T> {
                 .timestamp(LocalDateTime.now())
                 .build();
     }
-
-    // Success with only data (NEW - this was missing)
     public static <T> ApiResponse<T> success(T data) {
         return ApiResponse.<T>builder()
                 .success(true)
@@ -39,8 +35,6 @@ public class ApiResponse<T> {
                 .timestamp(LocalDateTime.now())
                 .build();
     }
-
-    // Success with only message
     public static <T> ApiResponse<T> success(String message) {
         return ApiResponse.<T>builder()
                 .success(true)
@@ -49,7 +43,6 @@ public class ApiResponse<T> {
                 .build();
     }
 
-    // Error with message
     public static <T> ApiResponse<T> error(String message) {
         return ApiResponse.<T>builder()
                 .success(false)
