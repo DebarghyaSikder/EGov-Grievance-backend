@@ -20,10 +20,8 @@ import reactor.core.publisher.Mono;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter implements GlobalFilter, Ordered {
-
     private final RouteValidator routeValidator;
     private final JwtUtils jwtUtils;
-
     @PostConstruct
     public void init() {
         log.info(">>>>>>>>>> JwtAuthFilter INITIALIZED <<<<<<<<<<");
@@ -38,22 +36,15 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
 
         log.info(">>>>>>>>>> JWT FILTER INVOKED <<<<<<<<<<");
         log.info("Incoming request: {} {}", method, path);
-
-        // Allow CORS preflight OPTIONS requests FIRST
         if (routeValidator.isPreflightRequest(request.getMethod())) {
             log.info("CORS PREFLIGHT REQUEST - Allowing through: {} {}", method, path);
             return chain.filter(exchange);
         }
-
-        // Allow public endpoints
         if (routeValidator.isPublicEndpoint(path)) {
             log.info("PUBLIC ENDPOINT - Allowing access: {}", path);
             return chain.filter(exchange);
         }
-
         log.info("Protected endpoint - checking authentication");
-
-        // Check for Authorization header
         if (!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
             log.warn("Missing Authorization header");
             return onError(exchange, "Missing Authorization header", HttpStatus.UNAUTHORIZED);
@@ -64,7 +55,6 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
             log.warn("Invalid Authorization header format");
             return onError(exchange, "Invalid Authorization header", HttpStatus.UNAUTHORIZED);
         }
-
         String token = authHeader.substring(7);
 
         try {

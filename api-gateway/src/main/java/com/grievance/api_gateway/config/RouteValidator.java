@@ -10,63 +10,53 @@ import java.util.regex.Pattern;
 @Slf4j
 @Component
 public class RouteValidator {
-
-    /**
-     * Public endpoints – NO authentication / NO RBAC
-     */
     private static final List<String> PUBLIC_ENDPOINTS = List.of(
             "/api/v1/auth/register",
-            "/api/v1/auth/login"
-    );
-
-    /**
-     * RBAC-protected endpoints
-     */
+            "/api/v1/auth/login");
     private static final List<EndpointRole> ENDPOINT_ROLES = List.of(
-
-            /* ======================= AUTH ======================= */
+            /* AUTH */
             new EndpointRole("GET", "/api/v1/auth/me", List.of("CITIZEN", "DEPARTMENT_OFFICER", "SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
 
-            /* ======================= CITIZEN ======================= */
+            /*  CITIZEN */
             new EndpointRole("POST", "/api/v1/grievances", List.of("CITIZEN", "SYSTEM_ADMIN")),
             new EndpointRole("GET", "/api/v1/grievances/my", List.of("CITIZEN", "SYSTEM_ADMIN")),
             new EndpointRole("GET", "/api/v1/grievances/tracking/.*", List.of("CITIZEN", "SYSTEM_ADMIN")),
 
-            /* ======================= ATTACHMENTS ======================= */
+            /* ATTACHMENTS*/
             new EndpointRole("POST", "/api/v1/grievances/\\d+/attachments", List.of("CITIZEN", "SYSTEM_ADMIN")),
             new EndpointRole("GET", "/api/v1/grievances/\\d+/attachments", List.of("CITIZEN", "DEPARTMENT_OFFICER", "SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
             new EndpointRole("GET", "/api/v1/grievances/\\d+/attachments/\\d+/download", List.of("CITIZEN", "DEPARTMENT_OFFICER", "SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
             new EndpointRole("DELETE", "/api/v1/grievances/\\d+/attachments/\\d+", List.of("CITIZEN", "SYSTEM_ADMIN")),
 
-            /* ======================= FEEDBACK ======================= */
+            /* FEEDBACK */
             new EndpointRole("POST", "/api/v1/feedbacks", List.of("CITIZEN", "SYSTEM_ADMIN")),
             new EndpointRole("GET", "/api/v1/feedbacks/my", List.of("CITIZEN", "SYSTEM_ADMIN")),
             new EndpointRole("GET", "/api/v1/feedbacks/grievance/.*", List.of("CITIZEN", "DEPARTMENT_OFFICER", "SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
             new EndpointRole("GET", "/api/v1/feedbacks/average-rating", List.of("SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
 
-            /* ======================= NOTIFICATIONS ======================= */
+            /* NOTIFICATIONS */
             new EndpointRole("GET", "/api/v1/notifications/my", List.of("CITIZEN", "DEPARTMENT_OFFICER", "SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
             new EndpointRole("GET", "/api/v1/notifications/unread", List.of("CITIZEN", "DEPARTMENT_OFFICER", "SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
             new EndpointRole("GET", "/api/v1/notifications/unread-count", List.of("CITIZEN", "DEPARTMENT_OFFICER", "SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
             new EndpointRole("PUT", "/api/v1/notifications/\\d+/read", List.of("CITIZEN", "DEPARTMENT_OFFICER", "SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
             new EndpointRole("PUT", "/api/v1/notifications/mark-all-read", List.of("CITIZEN", "DEPARTMENT_OFFICER", "SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
 
-            /* ======================= OFFICER ======================= */
+            /* OFFICER */
             new EndpointRole("GET", "/api/v1/grievances/officer/assigned", List.of("DEPARTMENT_OFFICER", "SYSTEM_ADMIN")),
             new EndpointRole("PUT", "/api/v1/grievances/\\d+/status", List.of("DEPARTMENT_OFFICER", "SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
             new EndpointRole("GET", "/api/v1/grievances/department/.*", List.of("DEPARTMENT_OFFICER", "SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
             new EndpointRole("GET", "/api/v1/grievances/status/.*", List.of("DEPARTMENT_OFFICER", "SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
 
-            /* ======================= SUPERVISORY ======================= */
+            /* SUPERVISOR= */
             new EndpointRole("GET", "/api/v1/grievances/all", List.of("SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
             new EndpointRole("PUT", "/api/v1/grievances/\\d+/assign", List.of("SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
             new EndpointRole("PUT", "/api/v1/grievances/\\d+/escalate", List.of("SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
             new EndpointRole("PUT", "/api/v1/grievances/\\d+/reassign", List.of("SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
 
-            /* ======================= ADMIN ======================= */
+            /* ADMIN */
             new EndpointRole("POST", "/api/v1/grievances/admin/trigger-escalation", List.of("SYSTEM_ADMIN")),
 
-            /* ======================= REPORTS ======================= */
+            /* REPORTS */
             new EndpointRole("GET", "/api/v1/reports/grievances-by-status", List.of("SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
             new EndpointRole("GET", "/api/v1/reports/grievances-by-department", List.of("SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
             new EndpointRole("GET", "/api/v1/reports/grievances-by-category", List.of("SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
@@ -77,20 +67,16 @@ public class RouteValidator {
             new EndpointRole("GET", "/api/v1/reports/officer-workload", List.of("SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
             new EndpointRole("GET", "/api/v1/reports/dashboard-summary", List.of("DEPARTMENT_OFFICER", "SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
             
-            /* ======================= PAGINATED ENDPOINTS ======================= */
+            /* PAGINATED ENDPOINTS */
             new EndpointRole("GET", "/api/v1/grievances/my/paged", List.of("CITIZEN", "SYSTEM_ADMIN")),
             new EndpointRole("GET", "/api/v1/grievances/officer/assigned/paged", List.of("DEPARTMENT_OFFICER", "SYSTEM_ADMIN")),
             new EndpointRole("GET", "/api/v1/grievances/all/paged", List.of("SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
             new EndpointRole("GET", "/api/v1/grievances/status/.+/paged", List.of("DEPARTMENT_OFFICER", "SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
             new EndpointRole("GET", "/api/v1/grievances/department/.+/paged", List.of("DEPARTMENT_OFFICER", "SUPERVISORY_OFFICER", "SYSTEM_ADMIN")),
             
-            /* ======================= COMMON ======================= */
+            /* COMMON */
             new EndpointRole("GET", "/api/v1/grievances/\\d+", List.of("CITIZEN", "DEPARTMENT_OFFICER", "SUPERVISORY_OFFICER", "SYSTEM_ADMIN"))
     );
-
-    /**
-     * Check if request is a CORS preflight OPTIONS request
-     */
     public boolean isPreflightRequest(HttpMethod method) {
         boolean result = method == HttpMethod.OPTIONS;
         if (result) {
@@ -99,27 +85,19 @@ public class RouteValidator {
         return result;
     }
 
-    /**
-     * Check if endpoint is PUBLIC
-     */
     public boolean isPublicEndpoint(String path) {
         boolean result = PUBLIC_ENDPOINTS.stream().anyMatch(path::equals);
         log.info("Public endpoint check for [{}] => {}", path, result);
         return result;
     }
 
-    /**
-     * RBAC check
-     */
     public boolean hasAccess(String role, String method, String path) {
         log.info("RBAC check: role={}, method={}, path={}", role, method, path);
 
-        // SYSTEM_ADMIN bypass
         if ("SYSTEM_ADMIN".equalsIgnoreCase(role)) {
             log.info("SYSTEM_ADMIN - full access granted");
             return true;
         }
-
         for (EndpointRole er : ENDPOINT_ROLES) {
             if (er.matches(method, path)) {
                 boolean hasRole = er.allowedRoles.contains(role);
@@ -133,10 +111,6 @@ public class RouteValidator {
         log.warn("No access granted for role={}, method={}, path={}", role, method, path);
         return false;
     }
-
-    /**
-     * EndpointRole definition
-     */
     private static class EndpointRole {
 
         private final String method;
