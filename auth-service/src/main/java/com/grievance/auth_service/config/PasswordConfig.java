@@ -10,7 +10,6 @@ public class PasswordConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // bcrypt strength defaults to 10, enough for strong hashing
         return new BCryptPasswordEncoder();
     }
 }

@@ -9,7 +9,7 @@ import lombok.*;
 @Builder
 public class AuthResponse {
     private String message;
-    private String token; // temporarily null until we implement JWT
+    private String token;
     private String role;
     private Long userId;
 }

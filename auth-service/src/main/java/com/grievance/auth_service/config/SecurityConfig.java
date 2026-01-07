@@ -29,7 +29,6 @@ public class SecurityConfig {
                         "/api/v1/auth/register",
                         "/api/v1/auth/login"
                 ).permitAll()
-                // Internal endpoints - only for service-to-service communication
                 .requestMatchers("/api/v1/auth/internal/**").permitAll()
                 .requestMatchers("/api/v1/auth/me").authenticated()
                 .anyRequest().authenticated()
