@@ -68,7 +68,7 @@ The proposed **E-Governance Grievance Redressal System** is a centralized platfo
     </td>
     <td align="center">
       <strong>Admin Dashboard</strong><br />
-      <img src="https://github.com/DebarghyaSikder/EGov-Grievance-backend/blob/main/Images/Supervisor%20Dashboard%202.png" width="450"/>
+      <img src="https://github.com/DebarghyaSikder/EGov-Grievance-backend/blob/main/Images/Supervisor%20Dashboard%202.png"/>
     </td>
   </tr>
 </table>
