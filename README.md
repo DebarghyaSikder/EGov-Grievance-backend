@@ -33,7 +33,7 @@ The proposed **E-Governance Grievance Redressal System** is a centralized platfo
   <tr>
     <td>Frontend</td>
     <td>
-      <a href="https://github.com/kanchanraiii/EGovGrievance_Frontend" target="_blank">
+      <a href="https://github.com/DebarghyaSikder/EGov-Grievance-frontend" target="_blank">
         Frontend Repository
       </a>
     </td>
