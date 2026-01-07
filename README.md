@@ -3,24 +3,22 @@
 The proposed **E-Governance Grievance Redressal System** is a centralized platform built using **Angular 21** and **Spring Boot 3.5.9** that enables citizens to submit and track grievances online. The system automatically routes complaints to the appropriate departments, monitors the grievance lifecycle, and provides real-time status updates and dashboards to ensure transparency, accountability, and timely resolution.
 
 <p align="left">
-  <img src="https://img.shields.io/badge/Angular-21-DD0031?style=for-the-badge&logo=angular&logoColor=white" />
-  <img src="https://img.shields.io/badge/Spring%20Boot-3.2.5-6DB33F?style=for-the-badge&logo=springboot&logoColor=white" />
-  <img src="https://img.shields.io/badge/WebFlux-Reactive-0A7EA4?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/Jenkins-CI%2FCD-D24939?style=for-the-badge&logo=jenkins&logoColor=white" />
-  <img src="https://img.shields.io/badge/Docker-Containerized-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
-  <img src="https://img.shields.io/badge/Netlify-Frontend-00C7B7?style=for-the-badge&logo=netlify&logoColor=white" />
-  <img src="https://img.shields.io/badge/Azure-VM-0078D4?style=for-the-badge&logo=microsoftazure&logoColor=white" />
+  <img src="https://github.com/DebarghyaSikder/EGov-Grievance-backend/blob/main/Images/Eureka.png" />
+  <img src="https://github.com/DebarghyaSikder/EGov-Grievance-backend/blob/main/Images/SonarQube.png" />
+  <img src="https://github.com/DebarghyaSikder/EGov-Grievance-backend/blob/main/Images/Design.png" />
+  <img src="https://github.com/DebarghyaSikder/EGov-Grievance-backend/blob/main/Images/Citizen%20Dashboard.png" />
+  <img src="https://github.com/DebarghyaSikder/EGov-Grievance-backend/blob/main/Images/Officer%20Dashboard.png" />
+  <img src="https://github.com/DebarghyaSikder/EGov-Grievance-backend/blob/main/Images/Supervisor%20Dashboard.png" />
+  <img src="https://github.com/DebarghyaSikder/EGov-Grievance-backend/blob/main/Images/Admin%20Dashboard.png" />
 </p>
 
 ## Features
 
 <ul>
   <li>Centralized grievance submission and tracking system</li>
-  <li>Microservices architecture with Spring WebFlux</li>
-  <li>CI/CD pipeline implemented using Jenkins</li>
-  <li>Containerized services using Docker</li>
+  <li>Microservices architecture</li>
   <li>Service discovery using Eureka Server</li>
-  <li>Frontend deployed on Netlify and backend hosted on Azure VM</li>
+  <li>Frontend deployed on Vercel</li>
 </ul>
 
 -----
@@ -43,7 +41,7 @@ The proposed **E-Governance Grievance Redressal System** is a centralized platfo
   <tr>
     <td>Design Document</td>
     <td>
-      <a href="https://github.com/kanchanraiii/EGovGrievance_Backend/blob/main/Results%20Document.docx">
+      <a href="https://github.com/DebarghyaSikder/EGov-Grievance-backend/blob/main/E%20Governance%20Design%20Document.docx">
         Design Document.docx
       </a>
     </td>
@@ -51,7 +49,7 @@ The proposed **E-Governance Grievance Redressal System** is a centralized platfo
   <tr>
     <td>Results Document</td>
     <td>
-      <a href="https://github.com/kanchanraiii/EGovGrievance_Backend/blob/main/Results%20Document.docx">
+      <a href="https://github.com/DebarghyaSikder/EGov-Grievance-backend/blob/main/E-Governance%20Result.docx">
         Results Document.docx
       </a>
     </td>
