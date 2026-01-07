@@ -1,37 +1,15 @@
 spring:
   application:
     name: grievance-service
+  profiles:
+    active: local
   config:
     import: "optional:configserver:http://localhost:8888"
-  datasource:
-    url: jdbc:mysql://localhost:3306/grievance_db_grievance?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
-    username: root
-    password: Nike2004$
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.MySQLDialect
   rabbitmq:
     host: localhost
     port: 5672
     username: guest
     password: guest
-  servlet:
-    multipart:
-      enabled: true
-      max-file-size: 10MB
-      max-request-size: 10MB
-
-file:
-  upload-dir: uploads
-
-server:
-  port: 8084
 
 eureka:
   instance:
